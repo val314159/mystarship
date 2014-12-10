@@ -42,6 +42,9 @@ function Edit(cfg){
 	var _0 = x.result[0];
 	var _1 = x.result[1];
 	if (typeof(_0)=="string") {
+	    _0 = _0.replace('&','&amp;');
+	    _0 = _0.replace('>','&gt;');
+	    _0 = _0.replace('<','&lt;');
 	    $E(_1).innerHTML = _0;
 	} else {
 	    var path = $E(cfg.path).value
