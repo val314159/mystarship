@@ -1,0 +1,40 @@
+<style>
+.blk {
+  white-space: pre;
+  display:block;
+}
+#edit {  border: 1px solid blue;}
+#dir {  border: 1px solid yellow;}
+#command {  border: 1px solid black;}
+#stderr {  border: 1px solid red;}
+#stdout {  border: 1px solid green;}
+.codeblock {
+  white-space: pre;
+  display:block;
+  min-height:1em;
+}
+</style>
+<div id=out></div>
+<div>
+  <button onclick="e.save()">Save</button>
+  <button onclick="e.load()">Load</button>
+  <button onclick="rpcReconnect()">Reconnect</button>
+  <button onclick="rpcReboot()">Reboot</button>
+</div>
+<table>
+  <tr><td>Path: <td><input id="path" value='.'>
+  <tr><td>Status<td><span  id="status">UNKNOWN</span>
+  <tr><td>Mode: <td><span  id="mode"  >UNKNOWN</span>
+</table>
+<code id="command" class="blk"></code>
+<code id="stdout"  class="blk"></code>
+<code id="stderr"  class="blk"></code>
+<code id="dir"     class="blk"></code>
+<code id="edit"    class="codeblock"></code>
+<script src="/static/u.js"></script>
+<script src="/static/edit.js"></script>
+<script src="/static/x.js"></script>
+<script>
+rpcReconnect();
+var e = new Edit('#edit','#path')
+</script>
