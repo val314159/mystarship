@@ -44,12 +44,10 @@ class Session(SessionBase):
         print "HOW TO REBOOT????"
         return dict(result=True)
     def json_system(_,command,target='#edit'):
-        print "HOW TO SYSTEM????", command
         import subprocess as sp
         z = sp.Popen(command,shell=True,
                      stdout=sp.PIPE,
                      stderr=sp.PIPE).communicate()        
-        print "HOW TO SYSTEM????", z
         return dict(result=[command]+list(z))
     pass
 

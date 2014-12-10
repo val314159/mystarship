@@ -1,20 +1,8 @@
 fs={
-    load:  function(_1,_2){rpcSend("load",[_1,_2]); },
-    save:  function(_1,_2){rpcSend("save",[_1,_2]); },
-    system:function(_1,_2){rpcSend("system",[_1,_2])},
+    load:function(_1,_2){rpcSend("load",[_1,_2],e.return_load)},
+    save:function(_1,_2){rpcSend("save",[_1,_2])},
+system:function(_1,_2){rpcSend("system",[_1,_2],e.return_system)}
     reboot:function()     {rpcSend("reboot",[]);    }
-}
-function html2text(text) {
-    text = text.replace(/<div><br><\/div>/g,'\r\n')
-    text = text.replace(/<\/div><div>/g,'\r\n')
-    text = text.replace(/<div>/g,'\r\n')
-    text = text.replace(/<\/div>/g,'')
-    text = text.replace(/<br>/g,'\r\n')
-    //text = text.replace(/<.*?>/g,'')
-    text = text.replace(/&lt;/g,'<')
-    text = text.replace(/&gt;/g,'>')
-    text = text.replace(/&amp;/g,'&')
-    return text;
 }
 function Edit(textEltName,pathEltName){
     var text=$E(textEltName);
@@ -31,7 +19,6 @@ function Edit(textEltName,pathEltName){
 	if(e.keyCode==49 && e.ctrlKey) { // '^!'
 	    e.preventDefault();
 	    var cmd = prompt("system command?","");
-	    alert("CMD:", cmd);
 	    fs.system(cmd)
 	}
     }
@@ -45,5 +32,27 @@ function Edit(textEltName,pathEltName){
 	if (filename)
 	    path.value=filename;
 	fs.load(path.value,textEltName);
+    }
+    self.return_system=function(x){
+	$E('#command').innerHTML = x.result[0];
+	$E('#stdout').innerHTML = x.result[1];
+	$E('#stderr').innerHTML = x.result[2];
+    }
+    self.return_load=function(x){
+	var _0 = x.result[0];
+	var _1 = x.result[1];
+	if (typeof(_0)=="string") {
+	    $E(_1).innerHTML = _0;
+	} else {
+	    var path = $E('#path').value
+	    $E('#dir').innerHTML = ''
+	    for (var n=0; n<_0.length; n++) {
+		var k=path+'/'+_0[n];
+		var link = "<a href='#"+k+"' "+
+		    "onclick=e.load('"+k+"')>"+k+"</a>";
+		$E('#dir').innerHTML += link+'<br>';
+	    }
+	}
+
     }
 }
