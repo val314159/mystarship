@@ -1,12 +1,12 @@
 fs={
     load:function(_1,_2){rpcSend("load",[_1,_2],e.return_load)},
     save:function(_1,_2){rpcSend("save",[_1,_2])},
-system:function(_1,_2){rpcSend("system",[_1,_2],e.return_system)}
+    system:function(_1,_2){rpcSend("system",[_1,_2],e.return_system)},
     reboot:function()     {rpcSend("reboot",[]);    }
 }
-function Edit(textEltName,pathEltName){
-    var text=$E(textEltName);
-    var path=$E(pathEltName);
+function Edit(cfg){
+    var text=$E(cfg.text);
+    var path=$E(cfg.path);
     text.contentEditable=true;
     text.onkeydown=function(e){
 	if(e.keyCode==9) {
@@ -31,12 +31,12 @@ function Edit(textEltName,pathEltName){
     self.load=function(filename){
 	if (filename)
 	    path.value=filename;
-	fs.load(path.value,textEltName);
+	fs.load(path.value,cfg.text);
     }
     self.return_system=function(x){
-	$E('#command').innerHTML = x.result[0];
-	$E('#stdout').innerHTML = x.result[1];
-	$E('#stderr').innerHTML = x.result[2];
+	$E(cfg.command).innerHTML = x.result[0];
+	$E(cfg.stdout ).innerHTML = x.result[1];
+	$E(cfg.stderr ).innerHTML = x.result[2];
     }
     self.return_load=function(x){
 	var _0 = x.result[0];
@@ -44,15 +44,14 @@ function Edit(textEltName,pathEltName){
 	if (typeof(_0)=="string") {
 	    $E(_1).innerHTML = _0;
 	} else {
-	    var path = $E('#path').value
-	    $E('#dir').innerHTML = ''
+	    var path = $E(cfg.path).value
+	    $E(cfg.dir).innerHTML = ''
 	    for (var n=0; n<_0.length; n++) {
 		var k=path+'/'+_0[n];
 		var link = "<a href='#"+k+"' "+
 		    "onclick=e.load('"+k+"')>"+k+"</a>";
-		$E('#dir').innerHTML += link+'<br>';
+		$E(cfg.dir).innerHTML += link+'<br>';
 	    }
 	}
-
     }
 }

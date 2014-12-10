@@ -7,38 +7,35 @@ app = bottle.default_app()
 def server_static(path):return bottle.static_file(path,root='static')
 
 @app.route('/')
-def index():return bottle.static_file('x.html',root='static')
+def index():return bottle.static_file('y.html',root='static')
 
-@app.route('/ws')
-def ws():
+@app.route('/ws2')
+def ws2():
     s=Session(bottle.request.environ["wsgi.websocket"])
     while s._dispatch_message(): pass
     pass
 
-class FsSessMixin:
-    def json_save(_,name,value):
+class PubSubMixin:
+    def json_pub(_,name,value):
         fwrite(open(name,'w'),value).close()
         return dict(result=['ok'])
-    def json_load(_,name,target='#edit'):
+    def json_sub(_,name,target='#edit'):
         try:
             result=[open(name).read(),target]
         except IOError:
             result=[os.listdir(name), target]
             pass
         return dict(result=result)
-class ProcSessMixin:
-    def json_system(_,command,target='#edit'):
-        import subprocess as sp
-        z = sp.Popen(command,shell=True,
-                     stdout=sp.PIPE,
-                     stderr=sp.PIPE).communicate()
-        return dict(result=[command]+list(z))
+    def json_channels(_,target='#edit'):
+        return dict(result=True)
+    pass
 
 from sess import SessionBase
-class Session(SessionBase,FsSessMixin,ProcSessMixin):
+class Session(SessionBase,PubSubMixin):
     pass
+
 
 if __name__=='__main__':
     from gevent.pywsgi import WSGIServer
     from geventwebsocket.handler import WebSocketHandler as WSH
-    WSGIServer(('',7070),app,handler_class=WSH).serve_forever()
+    WSGIServer(('',6060),app,handler_class=WSH).serve_forever()

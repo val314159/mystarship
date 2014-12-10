@@ -35,5 +35,6 @@
 <script src="/static/edit.js"></script>
 <script>
 rpcReconnect();
-var e = new Edit('#edit','#path')
+var e = new Edit({text:'#edit',path:'#path',dir:'#dir',
+command:'#command',stdout:'#stdout',stderr:'#stderr'})
 </script>
