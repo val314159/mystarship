@@ -27,9 +27,9 @@ class FsSessMixin:
             pass
         return dict(result=result)
 class ProcSessMixin:
-    def json_system(_,command,target='#edit'):
+    def json_system(_,command,target='#edit',cwd=None):
         import subprocess as sp
-        z = sp.Popen(command,shell=True,
+        z = sp.Popen(command,shell=True,cwd=cwd,
                      stdout=sp.PIPE,
                      stderr=sp.PIPE).communicate()
         return dict(result=[command]+list(z))

@@ -1,7 +1,7 @@
 fs={
     load:function(_1,_2){rpcSend("load",[_1,_2],e.return_load)},
     save:function(_1,_2){rpcSend("save",[_1,_2])},
-    system:function(_1,_2){rpcSend("system",[_1,_2],e.return_system)},
+    system:function(_1,_2,_3){rpcSend("system",[_1,_2,_3],e.return_system)},
     reboot:function()     {rpcSend("reboot",[]);    }
 }
 function Edit(cfg){
@@ -19,7 +19,7 @@ function Edit(cfg){
 	if(e.keyCode==49 && e.ctrlKey) { // '^!'
 	    e.preventDefault();
 	    var cmd = prompt("system command?","");
-	    fs.system(cmd)
+	    fs.system(cmd,cfg.text,path.value)
 	}
     }
     var self=this;
