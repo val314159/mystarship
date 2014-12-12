@@ -41,4 +41,4 @@ class Session(SessionBase,FsSessMixin,ProcSessMixin):
 if __name__=='__main__':
     from gevent.pywsgi import WSGIServer
     from geventwebsocket.handler import WebSocketHandler as WSH
-    WSGIServer(('',7070),app,handler_class=WSH).serve_forever()
+    WSGIServer(('localhost',7070),app,handler_class=WSH).serve_forever()

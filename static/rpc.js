@@ -40,7 +40,7 @@ function onMsg(x)  {
     if (x.id) {
 	var fn = Callbacks[x.id];
 	if (fn) {
-	    LOG("YOU GOT A CALLBACK DEAL WITH IT");
+	    //LOG("YOU GOT A CALLBACK DEAL WITH IT");
 	    Callbacks[x.id] = undefined;
 	    fn(x);
 	} else {
