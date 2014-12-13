@@ -9,9 +9,12 @@ function Edit(cfg){
     var path=$E(cfg.path);
     text.contentEditable=true;
     text.onkeydown=function(e){
-	if(e.keyCode==9) {
+	if(e.keyCode==9) { // '^I' / Tab
 	    e.preventDefault();
 	    document.execCommand("InsertHTML",false,"&#09;");
+	}else if(e.keyCode==83 && e.ctrlKey) { // '^S'
+            //alert("SAVE ME");
+	    self.save();
 	}
     }
     document.onkeydown=function(e){

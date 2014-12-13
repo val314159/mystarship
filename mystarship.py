@@ -21,7 +21,7 @@ def ws():
         print '*'*80
         tb.print_exc()
         print '*'*80
-        _.ws.send(dict(error=True,stacktrace=tb.format_exc().split('\n')))
+        s.ws.send(dict(error=True,stacktrace=tb.format_exc().split('\n')))
         pass
     pass
 
