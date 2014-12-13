@@ -33,7 +33,8 @@ function $status(x){
     $E('#status').innerHTML = _status = x;
     return window;
 }
-function onOpen()  {LOG("ONOPEN");  $status("open");}
+function onOpen()  {LOG("ONOPEN");  $status("open"); onConnect();}
+onConnect=function(){}
 function onError(e){LOG("ONERROR"); $status("error:"+e);}
 function onClose(e){LOG("ONCLOSE"); $status("close:"+e);}
 function onMsg(x)  {

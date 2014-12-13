@@ -38,14 +38,21 @@ function Edit(cfg){
 	$E(cfg.stdout ).innerHTML = x.result[1];
 	$E(cfg.stderr ).innerHTML = x.result[2];
     }
+    self.setText=function(_0){
+	_0 = _0.replace(/&/g,'&amp;');
+	_0 = _0.replace(/>/g,'&gt;');
+	_0 = _0.replace(/</g,'&lt;');
+	text.innerHTML = _0;
+    }
+    self.getText=function(){
+	var txt = text.innerHTML;
+	return txt;
+    }
     self.return_load=function(x){
 	var _0 = x.result[0];
 	var _1 = x.result[1];
 	if (typeof(_0)=="string") {
-	    _0 = _0.replace('&','&amp;');
-	    _0 = _0.replace('>','&gt;');
-	    _0 = _0.replace('<','&lt;');
-	    $E(_1).innerHTML = _0;
+	    self.setText(_0);
 	} else {
 	    var path = $E(cfg.path).value
 	    $E(cfg.dir).innerHTML = ''

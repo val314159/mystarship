@@ -25,6 +25,7 @@ class FsSessMixin:
         except IOError:
             result=[os.listdir(name), target]
             pass
+        print "LOAD RESULT", repr(result)
         return dict(result=result)
 class ProcSessMixin:
     def json_system(_,command,target='#edit',cwd=None):
