@@ -1,6 +1,7 @@
-from prelude import *
-import bottle
+import os, sys, json, traceback as tb
+def fwrite(f,value): f.write(value); return f
 
+import bottle
 app = bottle.default_app()
 
 @app.route('/static/<path:path>')
@@ -12,8 +13,37 @@ def index():return bottle.static_file('x.html',root='static')
 @app.route('/ws')
 def ws():
     s=Session(bottle.request.environ["wsgi.websocket"])
-    while s._dispatch_message(): pass
+    try:
+        while s._dispatch_message(): pass
+    except:
+        print '*'*80
+        tb.print_exc()
+        print '*'*80
+        _.ws.send(dict(error=True,stacktrace=tb.format_exc().split('\n')))
+        pass
     pass
+
+class SessionBase:
+    def __init__(_,ws,prefix='json_'):_.ws=ws;_.pfx=prefix
+    def _dispatch_message(_,message=None,obj=None):
+        if obj is None: obj = _
+        if message is None: message = _.ws.receive()
+        print "MSG", repr(message)
+        if not message: return False
+        msg = json.loads(message)
+        print "MSG", repr(msg)
+        def dispatch(method,params,id=None):
+            fn = getattr(obj,_.pfx+method)
+            if   type(params)==type([]): return fn( *params)
+            elif type(params)==type({}): return fn(**params)
+            raise "HELL"
+        ret = dispatch(**msg)
+        if ret:
+            if 'id' in msg: ret['id'] = msg.get('id')
+            if 'method' in msg: ret['method'] = msg.get('method')
+            _.ws.send(json.dumps(ret))
+            pass
+        return True
 
 class FsSessMixin:
     def json_save(_,name,value):
@@ -35,7 +65,6 @@ class ProcSessMixin:
                      stderr=sp.PIPE).communicate()
         return dict(result=[command]+list(z))
 
-from sess import SessionBase
 class Session(SessionBase,FsSessMixin,ProcSessMixin):
     pass
 
