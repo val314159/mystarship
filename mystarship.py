@@ -4,11 +4,13 @@ def fwrite(f,value): f.write(value); return f
 import bottle
 app = bottle.default_app()
 
+StaticRoot = os.environ.get('STATIC_ROOT','static')
+
 @app.route('/static/<path:path>')
-def server_static(path):return bottle.static_file(path,root='static')
+def server_static(path):return bottle.static_file(path,root=StaticRoot)
 
 @app.route('/')
-def index():return bottle.static_file('x.html',root='static')
+def index():return server_static('x.html')
 
 @app.route('/ws')
 def ws():
@@ -28,7 +30,7 @@ class SessionBase:
     def _dispatch_message(_,message=None,obj=None):
         if obj is None: obj = _
         if message is None: message = _.ws.receive()
-        print "MSG", repr(message)
+        print "MESSAGE", repr(message)
         if not message: return False
         msg = json.loads(message)
         print "MSG", repr(msg)
@@ -67,6 +69,8 @@ class ProcSessMixin:
 
 class Session(SessionBase,FsSessMixin,ProcSessMixin):
     pass
+
+
 
 if __name__=='__main__':
     from gevent.pywsgi import WSGIServer
