@@ -13,16 +13,35 @@ function Edit(cfg){
 	    e.preventDefault();
 	    document.execCommand("InsertHTML",false,"&#09;");
 	}else if(e.keyCode==83 && e.ctrlKey) { // '^S'
-            //alert("SAVE ME");
 	    self.save();
 	}
     }
+    var mode = 0;
     document.onkeydown=function(e){
-	//LOG("EKC:"+e.keyCode);
-	if(e.keyCode==49 && e.ctrlKey) { // '^!'
+	//LOG(" --- MODE:" + mode + "EKC:"+e.keyCode);
+	if(mode){
+	    //LOG(" --- MODE:" + mode + "EKC:"+e.keyCode);
+	    if(e.keyCode==17){
+	    }else{
+		if(e.keyCode==65 && e.ctrlKey) { // '^A'
+		    LOG("no thing");
+		}else{
+		    e.preventDefault();
+		    LOG("DO THE THING!!!!");
+		}
+		mode=0;
+	    }
+	}else if(e.keyCode==65 && e.ctrlKey) { // '^A'
+	    mode=1;
+	    e.preventDefault();
+	    LOG("^AEAT IT");
+	}else if((e.keyCode==49||e.keyCode==90) && e.ctrlKey) { // '^!'
 	    e.preventDefault();
 	    var cmd = prompt("system command?","");
 	    fs.system(cmd,cfg.text,path.value)
+	}else if(e.keyCode==76 && e.ctrlKey) { // '^L'
+	    e.preventDefault();
+	    fs.load()
 	}
     }
     var self=this;
