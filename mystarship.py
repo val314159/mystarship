@@ -82,6 +82,11 @@ class ProcSessMixin:
         "kill process head"
         os.killpg(os.getpgid(int(pid)),9)
         return dict(result=True)
+    def json_destroy(_,index):
+        "destroy process"
+	p = Procs[int(index)]	
+        os.killpg(os.getpgid(p.pid),9)	
+        return dict(result=True)
     def json_system_async(_,command,target='#edit',cwd=None):
         "remote system command with async output"
         import subprocess as sp
