@@ -5,11 +5,13 @@ fs={
     reboot:function()     {rpcSend("reboot",[]);    }
 }
 function Edit(cfg){
-    LOG("CTOR EDIT");
+    LOG("CTOR EDIT:"+str(cfg));
     var text=$E(cfg.text);
-    LOG("CTOR EDIT2");
+    LOG("CTOR EDIT2:"+text);
     var dirname =$E(cfg.dirname);
+    LOG("DIRNAME:"+dirname);
     var filename=$E(cfg.filename);
+    LOG("DIRNAME:"+filename);
     var getPath=function(){
 	return dirname.value+'/'+filename.value;
     }
@@ -84,10 +86,13 @@ function Edit(cfg){
 	return txt;
     }
     self.return_load=function(x){
+	LOG(" **** RET LOAD **** " +str(x));
 	var _0 = x.result[0];
 	var _1 = x.result[1];
 	LOG("LLLL:22:"+x.result[2]);
 	LOG("LLLL:33:"+x.result[3]);
+	LOG("LLLL:22:"+dirname)
+	LOG("LLLL:22:"+filename)
 	dirname.value  = x.result[2];
 	filename.value = x.result[3];
 	self.data.dirname = x.result[2];
@@ -95,10 +100,10 @@ function Edit(cfg){
 	if (typeof(_0)=="string") {
 	    self.setText(_0);
 	} else {
-	    var dirname = $E(cfg.dirname).value
+	    var dname = $E(cfg.dirname).value
 	    $E(cfg.dir).innerHTML = ''
 	    for (var n=0; n<_0.length; n++) {
-		var k=dirname+'/'+_0[n];
+		var k=dname+'/'+_0[n];
 		var link = "<a href='#"+k+"' "+
 		    "onclick=e.load('"+k+"')>"+k+"</a>";
 		$E(cfg.dir).innerHTML += link+'<br>';

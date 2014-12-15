@@ -48,13 +48,14 @@ class FsSessMixin:
 	b=''
 	try:
 		out=open(name).read()
-		import os.path
+                import os.path
 		a,b=os.path.split(name)
 	except IOError:
 		import os
 		out=os.listdir(name)
 		a=name
 		pass
+        if a[-1]=='/': a=a[:-1]
 	result=[out,target,a,b]
 	print "LOAD RESULT", repr(result)
         return dict(result=result)
@@ -62,46 +63,49 @@ class FsSessMixin:
 def unblock(f):
   "sets file to nonblocked state.  sets proc's stdout/stderr to nonblocked"
   import os,fcntl,subprocess
-  if type(p)==int:
-      fd=p
+  if type(f)==int:
+      fd=f
       fl = fcntl.fcntl(fd, fcntl.F_GETFL)
       fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
-      return p
-  elif type(p)==subprocess.Popen:
-      unblock(p.stderr)
-      unblock(p.stdout)
-      return p
+      return f
+  elif type(f)==subprocess.Popen:
+      unblock(f.stderr)
+      unblock(f.stdout)
+      return f
   else:
       return unblock(f.fileno())
 
 class ProcSessMixin:
     "Mix this in for process management"
     Procs = []
+    def json_jobs(_,target='#edit'):
+        "get jobs table."
+        return dict(result=[dict(index=n,pid=p.pid)
+                            for n,p in enumerate(_.Procs)])
     def json_system(_,command,target='#edit',cwd=None):
-        "remote system command.  json_system_async is better."
+        "remote system command.  json_spawn is better."
         import subprocess as sp
         z = sp.Popen(command,shell=True,cwd=cwd,
                      stdout=sp.PIPE,
                      stderr=sp.PIPE).communicate()
         return dict(result=[command]+list(z))
-    def json_killph(_,pid):
-        "kill process head"
-        os.killpg(os.getpgid(int(pid)),9)
-        return dict(result=True)
     def json_destroy(_,index):
-        "destroy process"
-	p = Procs[int(index)]	
-        os.killpg(os.getpgid(p.pid),9)	
+        "destroy process (group)"
+	p = _.Procs[int(index)]
+        os.killpg((p.pid),9)	
+        #os.killpg(os.getpgid(p.pid),9)	
         return dict(result=True)
-    def json_system_async(_,command,target='#edit',cwd=None):
+    def json_spawn(_,command,target='#edit',cwd=None):
         "remote system command with async output"
+        import os
         import subprocess as sp
         p = unblock(sp.Popen(command,shell=True,cwd=cwd,
+                             preexec_fn=os.setsid,
                              stdout=sp.PIPE,stderr=sp.PIPE))
-        Procs.append(p)
-        return dict(result=[command, repr(p), p.pid, len(Procs)-1])
+        _.Procs.append(p)
+        return dict(result=[command, repr(p), p.pid, len(_.Procs)-1])
     def json_read_async(_,index):
-	p = Procs[int(index)]
+	p = _.Procs[int(index)]
 	so=p.stdout.read(1024)
 	se=p.stderr.read(1024)
 	return dict(result=dict(output=[so,se],index=index))

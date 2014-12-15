@@ -20,6 +20,11 @@
   <button onclick="e.load()">Load</button>
   <button onclick="rpcReconnect()">Reconnect</button>
   <button onclick="rpcReboot()">Reboot</button>
+<br>
+  <button onclick="rpcSystem()">System</button>
+  <button onclick="rpcSpawn()">Spawn</button>
+  <button onclick="rpcJobs()">Jobs</button>
+  <button onclick="rpcDestroy()">Destroy</button>
 </div>
 <table>
   <tr><td>Path: <td><input id="dirname" value='.'><input id="filename">
@@ -34,6 +39,19 @@
 <script src="/static/rpc.js"></script>
 <script src="/static/edit.js"></script>
 <script>
+function rpcJobs(){ rpcSend("jobs",[]) }
+function rpcSystem(){
+  var cmd = prompt("system command?","");
+  rpcSend("system",[cmd]);
+}
+function rpcDestroy(){
+  var cmd = prompt("id?","");
+  rpcSend("destroy",[cmd]);
+}
+function rpcSpawn(){
+  var cmd = prompt("spawn command?","");
+  rpcSend("spawn",[cmd]);
+}
 rpcReconnect();
 var e = new Edit({text:'#edit',dirname:'#dirname',filename:'#filename',dir:'#dir',
 command:'#command',stdout:'#stdout',stderr:'#stderr'})
