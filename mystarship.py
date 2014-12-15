@@ -94,7 +94,11 @@ class ProcSessMixin:
                              stdout=sp.PIPE,stderr=sp.PIPE))
         Procs.append(p)
         return dict(result=[command, repr(p), p.pid, len(Procs)-1])
-
+    def json_read_async(_,index):
+	p = Procs[int(index)]
+	so=p.stdout.read(1024)
+	se=p.stderr.read(1024)
+	return dict(result=dict(output=[so,se],index=index))
 class Session(SessionBase,FsSessMixin,ProcSessMixin):
     "Concrete session for managing files and procs"
     pass
