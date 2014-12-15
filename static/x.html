@@ -22,7 +22,7 @@
   <button onclick="rpcReboot()">Reboot</button>
 </div>
 <table>
-  <tr><td>Path: <td><input id="path" value='.'>
+  <tr><td>Path: <td><input id="dirname" value='.'><input id="filename">
   <tr><td>Status<td><span  id="status">UNKNOWN</span>
 </table>
 <code id="command" class="blk"></code>
@@ -35,6 +35,6 @@
 <script src="/static/edit.js"></script>
 <script>
 rpcReconnect();
-var e = new Edit({text:'#edit',path:'#path',dir:'#dir',
+var e = new Edit({text:'#edit',dirname:'#dirname',filename:'#filename',dir:'#dir',
 command:'#command',stdout:'#stdout',stderr:'#stderr'})
 </script>

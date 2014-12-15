@@ -4,7 +4,7 @@ It's a web backend with the ability to edit files and manage processes
 live in your browser.  Uses a nice async websocket backend.
 
 """
-import os, sys, json, traceback as tb
+import os, os.path, sys, json, traceback as tb
 def fwrite(f,value): f.write(value); return f
 
 class SessionBase:
@@ -45,12 +45,18 @@ class FsSessMixin:
         return dict(result=['ok'])
     def json_load(_,name,target='#edit',offset=0,size=-1):
         "load a file (or file data)"
-        try:
-            result=[open(name).read(),target]
-        except IOError:
-            result=[os.listdir(name), target]
-            pass
-        print "LOAD RESULT", repr(result)
+	b=''
+	try:
+		out=open(name).read()
+		import os.path
+		a,b=os.path.split(name)
+	except IOError:
+		import os
+		out=os.listdir(name)
+		a=name
+		pass
+	result=[out,target,a,b]
+	print "LOAD RESULT", repr(result)
         return dict(result=result)
 
 def unblock(f):
