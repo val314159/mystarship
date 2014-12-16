@@ -103,7 +103,22 @@ class ProcSessMixin:
                              preexec_fn=os.setsid,
                              stdout=sp.PIPE,stderr=sp.PIPE))
         _.Procs.append(p)
-        return dict(result=[command, repr(p), p.pid, len(_.Procs)-1])
+        index = len(_.Procs)-1
+        import gevent
+        def loop():
+            while 1:
+                gevent.sleep(1)
+                try   : so=p.stdout.read(1024)
+                except: so=''
+                try   : se=p.stderr.read(1024)
+                except: se=''
+                if so or se:
+                    _.ws.send(json.dumps(dict(result=dict(output=[so,se],index=index))))
+                    pass
+                pass
+            pass
+        gevent.spawn(loop)
+        return dict(result=[command, repr(p), p.pid, index])
     def json_read_async(_,index):
 	p = _.Procs[int(index)]
 	so=p.stdout.read(1024)
