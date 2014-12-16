@@ -38,6 +38,7 @@ onConnect=function(){}
 function onError(e){LOG("ONERROR"); $status("error:"+e);}
 function onClose(e){LOG("ONCLOSE"); $status("close:"+e);}
 function onMsg(x)  {
+    LOG(" $$$$ MSG $$$$ " + str(x));
     if (x.id) {
 	var fn = Callbacks[x.id];
 	if (fn) {
