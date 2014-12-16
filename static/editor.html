@@ -48,7 +48,7 @@ function loadFile(x){
 function loadUp(filename){
   RPC.rpcSend("load",[filename],function(x){
     LOG("LOADED2!"+str(x.result));
-    if (typeof(x.result[0])=="string") loadFile(x) else loadDir(x)
+    if (typeof(x.result[0])=="string") loadFile(x); else loadDir(x);
   })
   LOG("REQ SENT");
 }
