@@ -3,6 +3,7 @@
 function WS(path) {
   var _ws = new WebSocket('ws://'+location.host+path);
   _ws.onopen  = onOpen;
+  _ws.onconect = function(){};
   _ws.onerror = onError;
   _ws.onclose = onClose;
   _ws.onmessage=function(x){onMsg(JSON.parse(x.data))};
@@ -22,6 +23,12 @@ function rpcSend(method,params,callback) {
     }
 }
 function rpcReconnect(){
+    if (Rpc)
+	Rpc.close();
+    Rpc = WS('/ws')
+    return Rpc;
+}
+function rpcReconnect2(){
     if (Rpc)
 	Rpc.close();
     Rpc = WS('/ws')
