@@ -80,7 +80,7 @@ class ProcSessMixin:
     Procs = []
     def json_jobs(_,target='#edit'):
         "get jobs table."
-        return dict(result=[dict(index=n,pid=p.pid)
+        return dict(result=[dict(index=n,pid=p.pid,poll=p.poll())
                             for n,p in enumerate(_.Procs)])
     def json_system(_,command,target='#edit',cwd=None):
         "remote system command.  json_spawn is better."
@@ -92,10 +92,9 @@ class ProcSessMixin:
     def json_destroy(_,index):
         "destroy process (group)"
 	p = _.Procs[int(index)]
-        os.killpg((p.pid),9)	
-        #os.killpg(os.getpgid(p.pid),9)	
+        os.killpg((p.pid),9)
         return dict(result=True)
-    def json_spawn(_,command,target='#edit',cwd=None):
+    def json_spawn(_,command,target='#edit',cwd=None,output=True):
         "remote system command with async output"
         import os
         import subprocess as sp
@@ -104,6 +103,11 @@ class ProcSessMixin:
                              stdout=sp.PIPE,stderr=sp.PIPE))
         _.Procs.append(p)
         index = len(_.Procs)-1
+        if output: _.json_spew(index)
+        return dict(result=[command, repr(p), p.pid, index])
+    def json_spew(_,index):
+        "get remote job output"
+	p = _.Procs[int(index)]
         import gevent
         def loop():
             while 1:
@@ -113,17 +117,13 @@ class ProcSessMixin:
                 try   : se=p.stderr.read(1024)
                 except: se=''
                 if so or se:
-                    _.ws.send(json.dumps(dict(result=dict(output=[so,se],index=index))))
+                    _.ws.send(json.dumps(dict(method='spawn',params=dict(output=[so,se],index=index))))
                     pass
                 pass
             pass
         gevent.spawn(loop)
-        return dict(result=[command, repr(p), p.pid, index])
-    def json_read_async(_,index):
-	p = _.Procs[int(index)]
-	so=p.stdout.read(1024)
-	se=p.stderr.read(1024)
-	return dict(result=dict(output=[so,se],index=index))
+        return dict(result=True)
+
 class Session(SessionBase,FsSessMixin,ProcSessMixin):
     "Concrete session for managing files and procs"
     pass
