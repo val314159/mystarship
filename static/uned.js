@@ -4,7 +4,7 @@ G.BufEd=function(eltName){
     var elt=document.getElementById(eltName);
     elt.onkeydown=function(e){
         switch(e.keyCode){
-	case 9: // '^I' / Tab
+	case 9 : // '^I' / Tab
 	  e.preventDefault();
 	  document.execCommand("InsertHTML",false,"&#09;");
 	  break;

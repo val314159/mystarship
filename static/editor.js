@@ -1,7 +1,8 @@
 var RPC=new WS("/ws",function(x){$E('#status').innerHTML=x});
 function mkThing(_1,_2){
   var _0=_1+'/'+_2;
-  return "<a onclick=load('"+_0+"') href='#"+_0+"'>"+_2+"</a><br>";
+  return("<a onclick=load('_0') href='#_0'>_0</a><br>"
+	 .replace(/_0/g,_0).replace(/_2/g,_2));
 }
 function save(buf,pathEltname) {
     var fname = $E('#bufed_a.path').innerHTML;
@@ -15,7 +16,12 @@ function loadDir(x){
     elt.innerHTML = ''
     var files = x.result[0];
     for (var n=0; n<files.length; n++) {
-      elt.innerHTML += mkThing(x.result[2],files[n])
+	var a=files[0][n][0];
+	var b=files[0][n][1];
+	for (var m=0; m<b.length; m++) {
+	    LOG("::"+a+"//"+b[m]);
+	    elt.innerHTML += mkThing(a,b[m])
+	}
     }
     var path=x.result[2]+'/'+x.result[3];
     LOG("PATH:"+path);
@@ -37,7 +43,30 @@ function load(filename){
   })
   LOG("REQ SENT");
 }
-
+document.onkeydown=function(e){
+    switch(e.keyCode){
+    case 90: // 'Z'
+	if (e.ctrlKey) {
+	    e.preventDefault();
+	    var cmd = prompt("enter command:","");
+	    RPC.rpcSend("system",[cmd],function(x){
+		    LOG("SYSTEMED!"+str(x.result));
+		})
+	}
+	break;
+    }
+}
 RPC.reconnect(function(){ load('.') });
-var editor1 = new G.BufEd("bufed_a");
-var editor2 = ace.edit("bufed_b");
+if (0) {
+  editor1 = new G.BufEd("bufed_a");
+  editor2 = ace.edit("bufed_b");
+} else {
+  editor1 = ace.edit("bufed_a");
+  editor1.commands.addCommand({
+      name: 'myCommand', readOnly: true,
+      bindKey: {win: 'Ctrl-S',  mac: 'Ctrl-S'},
+      exec: function(editor){save(editor1,'#bufed_a.path')}});
+  //editor1.getSession().setMode("ace/mode/javascript");
+  editor2 = new G.BufEd("bufed_b");
+  myCodeMirror = CodeMirror($E('bufed_c'));
+}

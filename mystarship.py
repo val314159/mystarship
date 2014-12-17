@@ -73,8 +73,8 @@ class FsSessMixin:
                     #    pass
                     pass
                 print 99,'@'*80
-
-		out=os.listdir(name)
+                out = [(a,[z for z in c if not z.endswith('~')]) for a,b,c in os.walk('.') if valid(a)]
+		#out=os.listdir(name)
 		a=name
 		pass
         if a[-1]=='/': a=a[:-1]
