@@ -1,4 +1,12 @@
-var RPC=new WS("/ws",function(x){$E('#status').innerHTML=x});
+function extra(x){
+    LOG("EXTRA:"+str(x));
+    var stdout=x.params.output[0];
+    var stderr=x.params.output[1];
+    $E('#cmded_a_stdout' ).innerHTML += stdout;
+    $E('#cmded_a_stderr' ).innerHTML += stderr;
+
+}
+var RPC=new WS("/ws",function(x){$E('#status').innerHTML=x},extra);
 function mkThing(_1,_2){
   var _0=_1+'/'+_2;
   return("<a onclick=load('_0') href='#_0'>_0</a><br>"
@@ -44,7 +52,20 @@ function load(filename){
   LOG("REQ SENT");
 }
 document.onkeydown=function(e){
+    LOG("KC " + e.keyCode);
     switch(e.keyCode){
+    case 81: // 'Q'
+	if (e.ctrlKey) {
+	    e.preventDefault();
+	    var cmd = prompt("enter command:","");
+	    RPC.rpcSend("spawn",[cmd],function(x){
+		    LOG("SPAWNED!"+str(x.result));
+		    $E('#cmded_a.command').innerHTML = x.result[0];
+		    $E('#cmded_a_stdout' ).innerHTML = '';
+		    $E('#cmded_a_stderr' ).innerHTML = ''
+		})
+	}
+	break;
     case 90: // 'Z'
 	if (e.ctrlKey) {
 	    e.preventDefault();

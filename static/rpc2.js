@@ -1,22 +1,22 @@
-function WS(path,$status) {
+function WS(path,$status,extra) {
   var self=this;
   Callbacks = {};
   var _ws;
 
   self.onconnect = function(){};
   self.onmsg=function(x){
-    LOG(" $$$$ MSG $$$$ " + str(x));
+      //LOG(" $$$$ MSG $$$$ " + str(x));
     if (x.id) {
 	var fn = Callbacks[x.id];
 	if (fn) {
-	    //LOG("YOU GOT A CALLBACK DEAL WITH IT");
 	    Callbacks[x.id] = undefined;
 	    fn(x);
 	} else {
 	    LOG("WIERD, CANT FIND CALLBACK FOR "+str(x));
 	}
     } else {
-	LOG("GOT MSG:"+str(x));
+	if (extra) extra(x);
+	else LOG("GOT MSG:"+str(x));
     }
   };
 
