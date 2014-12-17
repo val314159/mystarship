@@ -8,6 +8,7 @@ import os, os.path, sys, json, traceback as tb
 def fwrite(f,value): f.write(value); return f
 
 class SessionBase:
+    "Base class for Websocket RPC Sessions."
     def __init__(_,ws,prefix='json_'):_.ws=ws;_.pfx=prefix
     def _dispatch_message(_,message=None,obj=None):
         if obj is None: obj = _
@@ -52,6 +53,27 @@ class FsSessMixin:
 		a,b=os.path.split(name)
 	except IOError:
 		import os
+
+                print '@'*80
+                from pprint import pprint
+
+                def valid(x):
+                    if x.startswith('./.'): return False
+                    return True
+
+                pprint([  (x[0],x[2])  for  x  in  os.walk('.')  if  valid(x[0])  ])
+                print '@'*80
+
+                for a,b,c in os.walk('.'):
+                    if a.startswith('./.'): continue
+                    print "A", a
+                    print "C", c
+                    #for f in c:
+                    #    print " ----- Z", (a,f)
+                    #    pass
+                    pass
+                print 99,'@'*80
+
 		out=os.listdir(name)
 		a=name
 		pass
