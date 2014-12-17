@@ -133,7 +133,7 @@ class ProcSessMixin:
         import gevent
         def loop():
             while 1:
-                gevent.sleep(1)
+                gevent.sleep(0.1)
                 try   : so=p.stdout.read(1024)
                 except: so=''
                 try   : se=p.stderr.read(1024)
