@@ -3,7 +3,8 @@ function WS(path,$status,extra) {
   Callbacks = {};
   var _ws;
 
-  self.onconnect = function(){};
+  self.noconnect = function(){};
+  self.onconnect = self.noconnect;
   self.onmsg=function(x){
       //LOG(" $$$$ MSG $$$$ " + str(x));
     if (x.id) {
@@ -38,7 +39,7 @@ function WS(path,$status,extra) {
     _ws.onerror = function(e){LOG("ONERROR");$status("error:"+e);};
     _ws.onclose = function(e){LOG("ONCLOSE");$status("close:"+e);};
     _ws.onmessage=function(x){self.onmsg(JSON.parse(x.data))};
-    if (onconnect) self.onconnect = onconnect;
+    self.onconnect = onconnect? onconnect : self.noconnect;
     return self;
   };
 }

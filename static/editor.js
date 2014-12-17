@@ -10,7 +10,7 @@ var RPC=new WS("/ws",function(x){$E('#status').innerHTML=x},extra);
 function mkThing(_1,_2){
   var _0=_1+'/'+_2;
   return("<a onclick=load('_0') href='#_0'>_0</a><br>"
-	 .replace(/_0/g,_0).replace(/_2/g,_2));
+    .replace(/_0/g,_0).replace(/_2/g,_2));
 }
 function save(buf,pathEltname) {
     var fname = $E('#bufed_a.path').innerHTML;
@@ -27,8 +27,8 @@ function loadDir(x){
 	var a=files[n][0];
 	var b=files[n][1];
 	for (var m=0; m<b.length; m++) {
-	    LOG("::"+a+"//"+b[m]);
-	    elt.innerHTML += mkThing(a,b[m])
+        LOG("::"+a+"//"+b[m]);
+        elt.innerHTML += mkThing(a,b[m])
 	}
     }
     var path=x.result[2]+'/'+x.result[3];
@@ -53,28 +53,29 @@ function load(filename){
 }
 document.onkeydown=function(e){
     LOG("KC " + e.keyCode);
+    var cmd;
     switch(e.keyCode){
     case 81: // 'Q'
 	if (e.ctrlKey) {
-	    e.preventDefault();
-	    var cmd = prompt("enter command:","");
-	    RPC.rpcSend("spawn",[cmd],function(x){
-		    LOG("SPAWNED!"+str(x.result));
-		    $E('#cmded_a.command').innerHTML = x.result[0];
-		    $E('#cmded_a_stdout' ).innerHTML = '';
-		    $E('#cmded_a_stderr' ).innerHTML = ''
+        e.preventDefault();
+        cmd = prompt("enter command:","");
+        RPC.rpcSend("spawn",[cmd],function(x){
+            LOG("SPAWNED!"+str(x.result));
+            $E('#cmded_a.command').innerHTML = x.result[0];
+            $E('#cmded_a_stdout' ).innerHTML = '';
+            $E('#cmded_a_stderr' ).innerHTML = ''
 		})
 	}
 	break;
     case 90: // 'Z'
 	if (e.ctrlKey) {
-	    e.preventDefault();
-	    var cmd = prompt("enter command:","");
-	    RPC.rpcSend("system",[cmd],function(x){
-		    LOG("SYSTEMED!"+str(x.result));
-		    $E('#cmded_a.command').innerHTML = x.result[0];
-		    $E('#cmded_a_stdout' ).innerHTML = x.result[1];
-		    $E('#cmded_a_stderr' ).innerHTML = x.result[2];
+        e.preventDefault();
+        cmd = prompt("enter command:","");
+        RPC.rpcSend("system",[cmd],function(x){
+            LOG("SYSTEMED!"+str(x.result));
+            $E('#cmded_a.command').innerHTML = x.result[0];
+            $E('#cmded_a_stdout' ).innerHTML = x.result[1];
+            $E('#cmded_a_stderr' ).innerHTML = x.result[2];
 		})
 	}
 	break;

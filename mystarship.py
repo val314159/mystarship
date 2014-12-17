@@ -174,7 +174,11 @@ def web_ws():
     try   : s._dispatch_loop()
     except: s._return_error()
 
-if __name__=='__main__':
+def launch():
+    host=os.environ.get('HOST','localhost')
+    port=int(os.environ.get('PORT','7070'))
     from gevent.pywsgi import WSGIServer
     from geventwebsocket.handler import WebSocketHandler as WSH
-    WSGIServer(('localhost',7070),app,handler_class=WSH).serve_forever()
+    WSGIServer((host,port),app,handler_class=WSH).serve_forever()
+
+if __name__=='__main__': launch()
