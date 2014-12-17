@@ -8,6 +8,7 @@ import os, os.path, sys, json, traceback as tb
 def fwrite(f,value): f.write(value); return f
 
 class SessionBase:
+    "Base class for Websocket RPC Sessions."
     def __init__(_,ws,prefix='json_'):_.ws=ws;_.pfx=prefix
     def _dispatch_message(_,message=None,obj=None):
         if obj is None: obj = _
@@ -52,7 +53,28 @@ class FsSessMixin:
 		a,b=os.path.split(name)
 	except IOError:
 		import os
-		out=os.listdir(name)
+
+                print '@'*80
+                from pprint import pprint
+
+                def valid(x):
+                    if x.startswith('./.'): return False
+                    return True
+
+                pprint([  (x[0],x[2])  for  x  in  os.walk('.')  if  valid(x[0])  ])
+                print '@'*80
+
+                for a,b,c in os.walk('.'):
+                    if a.startswith('./.'): continue
+                    print "A", a
+                    print "C", c
+                    #for f in c:
+                    #    print " ----- Z", (a,f)
+                    #    pass
+                    pass
+                print 99,'@'*80
+                out = [(a,[z for z in c if not z.endswith('~')]) for a,b,c in os.walk('.') if valid(a)]
+		#out=os.listdir(name)
 		a=name
 		pass
         if a[-1]=='/': a=a[:-1]
@@ -111,7 +133,7 @@ class ProcSessMixin:
         import gevent
         def loop():
             while 1:
-                gevent.sleep(1)
+                gevent.sleep(0.1)
                 try   : so=p.stdout.read(1024)
                 except: so=''
                 try   : se=p.stderr.read(1024)
@@ -143,7 +165,7 @@ def web_static(path):
 @app.route('/')
 def web_root():
     "serve up /"
-    return web_static('x.html')
+    return web_static('editor.html')
 
 @app.route('/ws')
 def web_ws():

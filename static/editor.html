@@ -1,0 +1,37 @@
+<link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.8.0/codemirror.min.css">
+<style>
+#cmded_a_stdout { background: lightblue; }
+#cmded_a_stderr { background: pink; }
+</style>
+<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.8.0/codemirror.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/ace/1.1.3/ace.js"></script>
+<script src="/static/uned.js"></script>
+<script src="/static/u.js"></script>
+<script src="/static/rpc2.js"></script>
+<a href="/">Reload</a>
+Status: <span id="status">--</span>
+<hr>
+<div id="cmded_a.command">--</div>
+<pre id="cmded_a_stdout"></pre>
+<pre id="cmded_a_stderr"></pre>
+<hr>
+<pre id="dired_a">LOADING</pre>
+<div id="dired_a.path">--</div>
+<hr>
+<div id="combo_a.path">--</div>
+<hr>
+<div id="bufed_a.path">--</div>
+<pre id="bufed_a" style="height: 100px"></pre>
+<hr>
+<button onclick="save(editor1,'#bufed_a.path')">Save</button>
+
+<button onclick="editor1.getSession().setMode('ace/mode/javascript')">Javascript</button>
+<button onclick="editor1.getSession().setMode('ace/mode/python')">Python</button>
+<button onclick="editor1.getSession().setMode('ace/mode/bash')">Shell</button>
+<pre id="bufed_b" style="height: 2em">BUFED_B</pre>
+<hr>
+<div>
+<textarea id="bufed_c" style="height: 2em">BUFED_C</textarea>
+</div>
+<hr>
+<script src="/static/editor.js"></script>
