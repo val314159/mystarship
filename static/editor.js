@@ -16,8 +16,8 @@ function loadDir(x){
     elt.innerHTML = ''
     var files = x.result[0];
     for (var n=0; n<files.length; n++) {
-	var a=files[0][n][0];
-	var b=files[0][n][1];
+	var a=files[n][0];
+	var b=files[n][1];
 	for (var m=0; m<b.length; m++) {
 	    LOG("::"+a+"//"+b[m]);
 	    elt.innerHTML += mkThing(a,b[m])
@@ -51,6 +51,9 @@ document.onkeydown=function(e){
 	    var cmd = prompt("enter command:","");
 	    RPC.rpcSend("system",[cmd],function(x){
 		    LOG("SYSTEMED!"+str(x.result));
+		    $E('#cmded_a.command').innerHTML = x.result[0];
+		    $E('#cmded_a_stdout' ).innerHTML = x.result[1];
+		    $E('#cmded_a_stderr' ).innerHTML = x.result[2];
 		})
 	}
 	break;

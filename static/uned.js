@@ -39,5 +39,5 @@ G.BufEd=function(eltName){
     this.focus=function(){elt.focus();}
 
     this.init();
-    this.focus();
+    //this.focus();
 }
