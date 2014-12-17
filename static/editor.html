@@ -1,7 +1,8 @@
-<script src="uned.js"></script>
-<script src="u.js"></script>
-<script src="rpc2.js"></script>
+<script src="/static/uned.js"></script>
+<script src="/static/u.js"></script>
+<script src="/static/rpc2.js"></script>
 
+<a href="/">Reload</a>
 Status: <span id="status">LOADING</span>
 
 <pre id="dired_a">LOADING</pre>
@@ -37,7 +38,8 @@ function loadDir(x){
     elt.innerHTML = ''
     var files = x.result[0];
     for (var n=0; n<files.length; n++) {
-      elt.innerHTML += '<a onclick=loadUp("./'+files[n]+'") href="#'+files[n]+'">'+files[n]+'</a><br>'
+//LOG("QQ:"+files[n]+"::"+x.result[2]);
+      elt.innerHTML += '<a onclick=loadUp("'+x.result[2]+'/'+files[n]+'") href="#'+files[n]+'">'+files[n]+'</a><br>'
     }
 }
 function loadFile(x){

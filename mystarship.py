@@ -143,7 +143,7 @@ def web_static(path):
 @app.route('/')
 def web_root():
     "serve up /"
-    return web_static('x.html')
+    return web_static('editor.html')
 
 @app.route('/ws')
 def web_ws():
