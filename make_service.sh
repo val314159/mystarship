@@ -1,10 +1,9 @@
 SERVICE_NAME=$1
 PORT=$2
 
-mkdir static
+mkdir -p static/$SERVICE_NAME
 mkdir $SERVICE_NAME
-mkdir $SERVICE_NAME/static
-ln -s $SERVICE_NAME/static static/$SERVICE_NAME
+(cd $SERVICE_NAME ; ln -s ../static/$SERVICE_NAME static)
 
 echo "PORT=$PORT python -m$SERVICE_NAME $*" >run_$SERVICE_NAME.sh
 
