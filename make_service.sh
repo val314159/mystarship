@@ -16,6 +16,14 @@ Hello
 </html>
 EOF
 
+cat >$SERVICE_NAME/__init__.py <<EOF
+EOF
+
+cat >$SERVICE_NAME/__main__.py <<EOF
+import mystarship
+if __name__=='__main__': mystarship.launch()
+EOF
+
 cat >$SERVICE_NAME/service.py <<EOF
 import mystarship
 if __name__=='__main__': mystarship.launch()
