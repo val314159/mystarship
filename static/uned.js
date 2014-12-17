@@ -1,5 +1,6 @@
 if (!window.G) G={};
 G.BufEd=function(eltName){
+    var self=this;
     var elt=document.getElementById(eltName);
     elt.onkeydown=function(e){
         switch(e.keyCode){
@@ -8,7 +9,7 @@ G.BufEd=function(eltName){
 	  document.execCommand("InsertHTML",false,"&#09;");
 	  break;
 	case 83: // '^S'
-	  if(e.ctrlKey) self.save();
+	  if(e.ctrlKey) save(self,'#bufed_a.path');
 	  break;
         }
     }
