@@ -11,6 +11,11 @@
 <a href="/">Reload</a>
 Status: <span id="status">--</span>
 <hr>
+<button onclick="spawn()">Spawn</button>
+<button onclick="jobs()">Jobs</button>
+<button onclick="destroy()">Destroy</button>
+<button onclick="RPC.reconnect()">Reconnect</button>
+<hr>
 Command: <span id="cmded_a.command">--</span>
 <pre id="cmded_a_stdout"></pre>
 <pre id="cmded_a_stderr"></pre>
@@ -23,14 +28,10 @@ combo_a.path: <span id="combo_a.path">--</span>
 bufed_a.path: <span id="bufed_a.path">--</span>
 <p>
 <button onclick="save(editor1,'#bufed_a.path')">Save</button>
-<button onclick="spawn()">Spawn</button>
-<button onclick="jobs()">Jobs</button>
-<button onclick="destroy()">Destroy</button>
 <button onclick="editor1.getSession().setMode('ace/mode/javascript')">Javascript</button>
 <button onclick="editor1.getSession().setMode('ace/mode/python')">Python</button>
 <button onclick="editor1.getSession().setMode('ace/mode/bash')">Shell</button>
 <button onclick="editor1.getSession().setMode('ace/mode/html')">HTML</button>
-
 <pre id="bufed_a" style="height: 100%"></pre>
 <hr>
 <pre id="bufed_b" style="height: 2em">BUFED_B</pre>
