@@ -19,6 +19,26 @@ function save(buf,pathEltname) {
       LOG("SAVED!"+str(x.result));
     })
 }
+function jobs() {
+    RPC.rpcSend("jobs",[],function(x){
+      LOG("JOBS:"+str(x.result));
+    })
+}
+function spawn() {
+    cmd = prompt("enter command:","");
+    RPC.rpcSend("spawn",[cmd],function(x){
+            LOG("SPAWNED!"+str(x.result));
+            $E('#cmded_a.command').innerHTML = x.result[0];
+            $E('#cmded_a_stdout' ).innerHTML = '';
+            $E('#cmded_a_stderr' ).innerHTML = '';
+	});
+}
+function destroy() {
+    cmd = prompt("enter job index to destroy:","");
+    RPC.rpcSend("destroy",[cmd],function(x){
+      LOG("DESTROY:"+str(x.result));
+    })
+}
 function loadDir(x){
     var elt=$E('#dired_a');
     elt.innerHTML = ''
@@ -57,26 +77,20 @@ document.onkeydown=function(e){
     switch(e.keyCode){
     case 81: // 'Q'
 	if (e.ctrlKey) {
-        e.preventDefault();
-        cmd = prompt("enter command:","");
-        RPC.rpcSend("spawn",[cmd],function(x){
-            LOG("SPAWNED!"+str(x.result));
-            $E('#cmded_a.command').innerHTML = x.result[0];
-            $E('#cmded_a_stdout' ).innerHTML = '';
-            $E('#cmded_a_stderr' ).innerHTML = ''
-		})
+	    e.preventDefault();
+	    spawn();
 	}
 	break;
     case 90: // 'Z'
 	if (e.ctrlKey) {
-        e.preventDefault();
-        cmd = prompt("enter command:","");
-        RPC.rpcSend("system",[cmd],function(x){
-            LOG("SYSTEMED!"+str(x.result));
-            $E('#cmded_a.command').innerHTML = x.result[0];
-            $E('#cmded_a_stdout' ).innerHTML = x.result[1];
-            $E('#cmded_a_stderr' ).innerHTML = x.result[2];
-		})
+	    e.preventDefault();
+	    cmd = prompt("enter command:","");
+	    RPC.rpcSend("system",[cmd],function(x){
+		    LOG("SYSTEMED!"+str(x.result));
+		    $E('#cmded_a.command').innerHTML = x.result[0];
+		    $E('#cmded_a_stdout' ).innerHTML = x.result[1];
+		    $E('#cmded_a_stderr' ).innerHTML = x.result[2];
+		});
 	}
 	break;
     }
@@ -91,7 +105,6 @@ if (0) {
       name: 'myCommand', readOnly: true,
       bindKey: {win: 'Ctrl-S',  mac: 'Ctrl-S'},
       exec: function(editor){save(editor1,'#bufed_a.path')}});
-  //editor1.getSession().setMode("ace/mode/javascript");
   editor2 = new G.BufEd("bufed_b");
   myCodeMirror = CodeMirror($E('bufed_c'));
 }

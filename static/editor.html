@@ -21,13 +21,18 @@ dired_a.path: <span id="dired_a.path">--</span>
 combo_a.path: <span id="combo_a.path">--</span>
 <hr>
 bufed_a.path: <span id="bufed_a.path">--</span>
-<pre id="bufed_a" style="height: 100%"></pre>
-<hr>
+<p>
 <button onclick="save(editor1,'#bufed_a.path')">Save</button>
+<button onclick="spawn()">Spawn</button>
+<button onclick="jobs()">Jobs</button>
+<button onclick="destroy()">Destroy</button>
 <button onclick="editor1.getSession().setMode('ace/mode/javascript')">Javascript</button>
 <button onclick="editor1.getSession().setMode('ace/mode/python')">Python</button>
 <button onclick="editor1.getSession().setMode('ace/mode/bash')">Shell</button>
 <button onclick="editor1.getSession().setMode('ace/mode/html')">HTML</button>
+
+<pre id="bufed_a" style="height: 100%"></pre>
+<hr>
 <pre id="bufed_b" style="height: 2em">BUFED_B</pre>
 <hr>
 <div>
