@@ -1,7 +1,9 @@
 import mystarship
 
-class ChatSession(mystartship.SessionBase):
+class ChatSession(mystarship.SessionBase):
     "Concrete session"
+    def json_hello(_):
+        return dict(result=[123,456,789])
     pass
 
 ####################################################

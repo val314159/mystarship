@@ -34,7 +34,11 @@ function WS(path,$status,extra) {
   self.reconnect=function(onconnect){
     if (_ws)
 	_ws.close();
-    _ws = new WebSocket('ws://'+location.host+path);
+    if (path[0]==':') {
+	_ws = new WebSocket('ws://'+location.hostname+path);
+    } else {
+	_ws = new WebSocket('ws://'+location.host+path);
+    }
     _ws.onopen  = function() {LOG("ONOPEN"); $status("open");self.onconnect()};
     _ws.onerror = function(e){LOG("ONERROR");$status("error:"+e);};
     _ws.onclose = function(e){LOG("ONCLOSE");$status("close:"+e);};
@@ -42,5 +46,32 @@ function WS(path,$status,extra) {
     self.onconnect = onconnect? onconnect : self.noconnect;
     return self;
   };
+}
+
+function jobs() {
+    RPC.rpcSend("jobs",[],function(x){
+        LOG("JOBS:"+str(x.result));
+        $E('#cmded_a.command').innerHTML = 'jobs';
+        $E('#cmded_a_stdout' ).innerHTML = 'Jobs:'
+        for (var n=0; n<x.result.length; n++) {
+            $E('#cmded_a_stdout' ).innerHTML += '<br>'+str(x.result[n]);
+        }
+        $E('#cmded_a_stderr' ).innerHTML = '';
+	});
+}
+function spawn() {
+    cmd = prompt("enter command:","");
+    RPC.rpcSend("spawn",[cmd],function(x){
+            LOG("SPAWNED!"+str(x.result));
+            $E('#cmded_a.command').innerHTML = x.result[0];
+            $E('#cmded_a_stdout' ).innerHTML = '';
+            $E('#cmded_a_stderr' ).innerHTML = '';
+	});
+}
+function destroy() {
+    cmd = prompt("enter job index to destroy:","");
+    RPC.rpcSend("destroy",[cmd],function(x){
+      LOG("DESTROY:"+str(x.result));
+    })
 }
 
