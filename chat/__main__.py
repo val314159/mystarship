@@ -1,11 +1,73 @@
-import mystarship
-
-class ChatSession(mystarship.SessionBase):
-    "Concrete session"
-    def json_hello(_):
-        return dict(result=[123,456,789])
+class PubSub(object):
+    def __init__(_,*a,**kw):
+        import collections
+        _.channels=collections.defaultdict(list)
+        super(PubSub,_).__init__(*a,**kw)
+    def unsub(_,old_channels):
+        for c in old_channels:
+            if c in _.channels:
+                _.channels[c].remove(_)
+                pass
+            pass
+        pass
+    def sub(_,new_channels):
+        for c in new_channels:
+            _.channels[c].append(_)
+            pass
+        pass
+    def pub(_,ch,msg):
+        for x in _.channels[ch]:
+            x.pub(ch,msg)
+            pass
+        pass
     pass
+class PubSubMixin(object):
+    "PubSub Mixin"
+    Sessions = {}
+    PS = PubSub()
+    def pub(_,ch,msg):
+        _._send(dict(method='pub',params=[ch,msg]))
+        pass
+    def __init__(_,*a,**kw):
+        _.channels = []
+        _.Sessions[id(_)]=_
+        super(PubSubMixin,_).__init__(*a,**kw)
+        pass
+    def close(_):
+        del _.Sessions[id(_)]
+        _.PS.unsub(_.channels)
+        super(PubSubMixin,_),close()
+        pass
+    def json_sub(_,new_ch,old_ch=[]):
+        _.PS.unsub(old_ch)
+        _.PS.sub(new_ch)
+        for c in old_ch: _.channels.remove(c)
+        for c in new_ch: _.channels.append(c)
+        return dict(result=True)
+    def json_pub(_,ch,msg):
+        _.PS.pub(ch,msg)
+        return dict(result=True)
+    pass
+####################################################
+import mystarship
+class ChatSession(mystarship.SessionBase,PubSubMixin):
+    "Concrete session"
+    def __init__(_,*a,**kw):
+        PubSubMixin.__init__(_,*a,**kw)
+        mystarship.SessionBase.__init__(_,*a,**kw)
+        pass
+    def close(_):
+        super(ChatSession,_),close()
+        pass
+    def json_intro(_):
+        return dict(result=['''
+-- Welcome to the chat room!<br>
+-- Make youself at home!<br>
+-- Type .? for help<p>
 
+You see nothing but darkness.
+        '''])
+    pass
 ####################################################
 
 import bottle

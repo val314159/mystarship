@@ -8,6 +8,14 @@
 <script src="/static/uned.js"></script>
 <script src="/static/u.js"></script>
 <script src="/static/rpc.js"></script>
+<script>
+function jump(h){
+    var elt=$E(h);
+    var top = elt.offsetTop; //Getting Y of target element
+    window.scrollTo(0, top);                        //Go there.
+    elt.focus();
+}
+</script>
 <a href="/">Reload</a>
 Status: <span id="status">--</span>
 <hr>
@@ -32,7 +40,9 @@ bufed_a.path: <span id="bufed_a.path">--</span>
 <button onclick="editor1.getSession().setMode('ace/mode/python')">Python</button>
 <button onclick="editor1.getSession().setMode('ace/mode/bash')">Shell</button>
 <button onclick="editor1.getSession().setMode('ace/mode/html')">HTML</button>
-<pre id="bufed_a" style="height: 100%"></pre>
+<button onclick="jump('#bufed_a')">GO</button>
+<a href="#qqq">Home Editor</a>
+<a name="qqq"></a><pre id="bufed_a" style="height: 100%"></pre>
 <hr>
 <pre id="bufed_b" style="height: 2em">BUFED_B</pre>
 <hr>
