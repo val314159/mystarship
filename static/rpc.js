@@ -6,7 +6,7 @@ function WS(path,$status,extra) {
   self.noconnect = function(){};
   self.onconnect = self.noconnect;
   self.onmsg=function(x){
-      //LOG(" $$$$ MSG $$$$ " + str(x));
+      LOG(" $$$$ MSG $$$$ " + str(x));
     if (x.id) {
 	var fn = Callbacks[x.id];
 	if (fn) {
@@ -16,8 +16,12 @@ function WS(path,$status,extra) {
 	    LOG("WIERD, CANT FIND CALLBACK FOR "+str(x));
 	}
     } else {
-	if (extra) extra(x);
-	else LOG("GOT MSG:"+str(x));
+	if (extra) {
+	    LOG("GOT EXTRA MSG, PROCESS:"+str(x));
+	    extra(x);
+	} else {
+	    LOG("GOT EXTRA MSG, DONT PROCESS::"+str(x));
+	}
     }
   };
 

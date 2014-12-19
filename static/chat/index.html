@@ -1,5 +1,7 @@
-<doctype html>
+<!DOCTYPE html>
 <html>
+<head>
+</head>
 <body>
 <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.8.0/codemirror.min.css">
 <style>
@@ -14,20 +16,15 @@
 <a href="index.html">Reload</a>
 Status: <span id="status">--</span>
 <hr>
-
-Hello
-
-<script>
-var RPC=new WS(":7001/chat/ws",function(x){$E('#status').innerHTML=x});
-RPC.reconnect(function(){ LOG("YAAAAAAY");
-
-   RPC.rpcSend("hello",[],function(x){
-      LOG("HELLO:"+str(x.result));
-    });
-
-});
-
-</script>
-
+<table style='width:100%'>
+  <tr><td>Name<td>
+  <input id="name" name="name" value='?' onchange='changeName(this)'>
+  <tr><td>Channel<td>
+  <input id="channel" name="channel" value='0' onchange='changeChannel(this)'>
+  <tr><td>Hushed?<td>
+  <input name="hush" type=checkbox onchange='changeHush(this)'>
+</table>
+<hr>
+<script src="/static/chat/app.js"></script>
 </body>
 </html>

@@ -9,7 +9,7 @@ def fwrite(f,value): f.write(value); return f
 
 class SessionBase(object):
     "Base class for Websocket RPC Sessions."
-    def __init__(_,ws,prefix='json_',*a,**kw):_.ws=ws;_.pfx=prefix;super(SessionBase).__init__(_,*a,**kw)
+    def __init__(_,ws,prefix='json_',*a,**kw):_.ws=ws;_.pfx=prefix;super(SessionBase,_).__init__(*a,**kw)
     def close(_): _.ws.close(); super(SessionBase,_).close()
     def _dispatch_message(_,message=None,obj=None):
         if obj is None: obj = _
@@ -43,7 +43,7 @@ class SessionBase(object):
 
 class FsSessMixin(object):
     "Mix this in for filesystem management"
-    def __init__(_,*a,**kw): super(FsSessMixin).__init__(_,*a,**kw)
+    def __init__(_,*a,**kw): super(FsSessMixin,_).__init__(*a,**kw)
     def close(_): super(FsSessMixin,_).close()
     def json_save(_,name,value,offset=0,partial=False):
         "save a file (or file data)"
@@ -58,13 +58,16 @@ class FsSessMixin(object):
 		a,b=os.path.split(name)
 	except IOError:
 		import os
-        out = [(a,[z for z in c if not z.endswith('~')]) for a,b,c in os.walk('.') if valid(a)]
+                def valid(x):
+                    if x.startswith('./.'): return False
+                    return True
+                out = [(a,[z for z in c if not z.endswith('~')]) for a,b,c in os.walk('.') if valid(a)]
 		a=name
 		pass
-    if a[-1]=='/': a=a[:-1]
-	result=[out,target,a,b]
-	print "LOAD RESULT", repr(result)
-    return dict(result=result)
+        if a[-1]=='/': a=a[:-1]
+        result=[out,target,a,b]
+        print "LOAD RESULT", repr(result)
+        return dict(result=result)
 
 def unblock(f):
     "sets file to nonblocked state.  sets proc's stdout/stderr to nonblocked"
@@ -83,7 +86,7 @@ def unblock(f):
 
 class ProcSessMixin(object):
     "Mix this in for process management"
-    def __init__(_,*a,**kw): super(ProcSessMixin).__init__(_,*a,**kw)
+    def __init__(_,*a,**kw): super(ProcSessMixin,_).__init__(*a,**kw)
     def close(_): super(ProcSessMixin,_).close()
     Procs = []
     def json_jobs(_,target='#edit'):
@@ -134,7 +137,7 @@ class ProcSessMixin(object):
 
 class Session(SessionBase,FsSessMixin,ProcSessMixin):
     "Concrete session for managing files and procs"
-    def __init__(_,*a,**kw): super(Session).__init__(_,*a,**kw)
+    def __init__(_,*a,**kw): super(Session,_).__init__(*a,**kw)
     def close(_): super(Session,_).close()
     pass
 

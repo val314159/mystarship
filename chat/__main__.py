@@ -1,3 +1,4 @@
+import traceback as tb
 class PubSub(object):
     def __init__(_,*a,**kw):
         import collections
@@ -10,12 +11,13 @@ class PubSub(object):
                 pass
             pass
         pass
-    def sub(_,new_channels):
+    def sub(_,new_channels,x):
         for c in new_channels:
-            _.channels[c].append(_)
+            _.channels[c].append(x)
             pass
         pass
     def pub(_,ch,msg):
+        print "CHANNELS:", _.channels[ch]
         for x in _.channels[ch]:
             x.pub(ch,msg)
             pass
@@ -26,7 +28,11 @@ class PubSubMixin(object):
     Sessions = {}
     PS = PubSub()
     def pub(_,ch,msg):
-        _._send(dict(method='pub',params=[ch,msg]))
+        try:
+            _._send(dict(method='pub',params=[ch,msg]))
+        except:
+            print "DIDNT WORK"
+            tb.print_exc()
         pass
     def __init__(_,*a,**kw):
         _.channels = []
@@ -36,11 +42,11 @@ class PubSubMixin(object):
     def close(_):
         del _.Sessions[id(_)]
         _.PS.unsub(_.channels)
-        super(PubSubMixin,_),close()
+        super(PubSubMixin,_).close()
         pass
     def json_sub(_,new_ch,old_ch=[]):
         _.PS.unsub(old_ch)
-        _.PS.sub(new_ch)
+        _.PS.sub(new_ch,_)
         for c in old_ch: _.channels.remove(c)
         for c in new_ch: _.channels.append(c)
         return dict(result=True)
@@ -53,12 +59,9 @@ import mystarship
 class ChatSession(mystarship.SessionBase,PubSubMixin):
     "Concrete session"
     def __init__(_,*a,**kw):
-        PubSubMixin.__init__(_,*a,**kw)
-        mystarship.SessionBase.__init__(_,*a,**kw)
+        super(ChatSession,_).__init__(*a,**kw)
         pass
-    def close(_):
-        super(ChatSession,_),close()
-        pass
+    def close(_): super(ChatSession,_).close()
     def json_intro(_):
         return dict(result=['''
 -- Welcome to the chat room!<br>
