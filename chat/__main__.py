@@ -1,28 +1,5 @@
 import traceback as tb
-class PubSub(object):
-    def __init__(_,*a,**kw):
-        import collections
-        _.channels=collections.defaultdict(list)
-        super(PubSub,_).__init__(*a,**kw)
-    def unsub(_,old_channels):
-        for c in old_channels:
-            if c in _.channels:
-                _.channels[c].remove(_)
-                pass
-            pass
-        pass
-    def sub(_,new_channels,x):
-        for c in new_channels:
-            _.channels[c].append(x)
-            pass
-        pass
-    def pub(_,ch,msg):
-        print "CHANNELS:", _.channels[ch]
-        for x in _.channels[ch]:
-            x.pub(ch,msg)
-            pass
-        pass
-    pass
+from pubsub import PubSub
 class PubSubMixin(object):
     "PubSub Mixin"
     Sessions = {}
@@ -35,20 +12,18 @@ class PubSubMixin(object):
             tb.print_exc()
         pass
     def __init__(_,*a,**kw):
-        _.channels = []
         _.Sessions[id(_)]=_
         super(PubSubMixin,_).__init__(*a,**kw)
         pass
     def close(_):
         del _.Sessions[id(_)]
-        _.PS.unsub(_.channels)
+        _.PS.unsub(_.subbed,_)
         super(PubSubMixin,_).close()
         pass
     def json_sub(_,new_ch,old_ch=[]):
-        _.PS.unsub(old_ch)
+        _.PS.unsub(old_ch,_)
         _.PS.sub(new_ch,_)
-        for c in old_ch: _.channels.remove(c)
-        for c in new_ch: _.channels.append(c)
+        # do subbed stuff here
         return dict(result=True)
     def json_pub(_,ch,msg):
         _.PS.pub(ch,msg)

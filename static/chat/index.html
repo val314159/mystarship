@@ -18,11 +18,11 @@ Status: <span id="status">--</span>
 <hr>
 <table style='width:100%'>
   <tr><td>Name<td>
-  <input id="name" name="name" value='?' onchange='changeName(this)'>
+  <input id="name" name="name" value='?' onchange='changeName(this.value)'>
   <tr><td>Channel<td>
-  <input id="channel" name="channel" value='0' onchange='changeChannel(this)'>
+  <input id="channel" name="channel" value='0' onchange='changeChannel(this.value)'>
   <tr><td>Hushed?<td>
-  <input name="hush" type=checkbox onchange='changeHush(this)'>
+  <input name="hush" type=checkbox onchange='changeHush(this.value)'>
 </table>
 <hr>
 <script src="/static/chat/app.js"></script>
