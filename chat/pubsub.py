@@ -1,6 +1,7 @@
 class PubSub(object):
     """
-    Generic PubSub Object.  If you sub, you'll get pub called on you.
+    Generic PubSub Object.
+    If you sub, you'll get pub called on you.
     """
     def __init__(_,*a,**kw):
         import collections

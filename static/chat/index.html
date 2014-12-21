@@ -1,8 +1,4 @@
 <!DOCTYPE html>
-<html>
-<head>
-</head>
-<body>
 <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.8.0/codemirror.min.css">
 <style>
 #cmded_a_stdout { background: lightblue; }
@@ -22,9 +18,15 @@ Status: <span id="status">--</span>
   <tr><td>Channel<td>
   <input id="channel" name="channel" value='0' onchange='changeChannel(this.value)'>
   <tr><td>Hushed?<td>
-  <input name="hush" type=checkbox onchange='changeHush(this.value)'>
+  <input id=hush name="hush" type=checkbox onchange='changeHush(this.value)'>
+  <tr><td>Yell:<td>
+  <input id=yell name="yell"    onchange='changeYell(this.value)'>
+  <tr><td>Say:<td>
+  <input id=say name="say"     onchange='changeSay(this.value)'>
+  <tr><td>Recipeint:<td>
+  <input id=private.dest name="private.dest">
+  <tr><td>Message:<td>
+  <input id=private name="private" onchange="changePrivate($E('#private.dest').value,this.value)">
 </table>
 <hr>
 <script src="/static/chat/app.js"></script>
-</body>
-</html>

@@ -24,7 +24,7 @@ function WS(path,$status,extra) {
 	}
     }
   };
-
+  self.disconnect=function(){_ws.close()}
   self.rpcSend=function(method,params,callback){
     if (callback) {
 	var id=getId();

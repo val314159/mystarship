@@ -2,8 +2,8 @@ var Channels = ["0x","n?","c0","yell","all"];
 
 function appendHTML(html) { document.body.appendChild($I($DCE('div'),html)); }
 
-function changeProp(x,pc){
-    var ndx = -1;    
+function changeProp(x,pc,f){
+    var ndx = -1;
     for(var n=0;n<Channels.length;n++) {
         if (Channels[n][0]==pc) {
             ndx = n;
@@ -12,15 +12,29 @@ function changeProp(x,pc){
     }
     var oldName = Channels[ndx];
     var newName = Channels[ndx] = pc+x;
-    RPC.rpcSend("sub",[[newName],[oldName]],function(x){
+    if (!f) f==function(x){
         LOG("PUB2:"+str(x.result));
-    });
+        RPC.rpcSend("pub",["all",[">> (%s)",getSelf()]],function(x){
+            LOG("PUB2:"+str(x.result));
+        });
+    }
+    RPC.rpcSend("sub",[[newName],[oldName]],f);
 }
 function changeName(x){
-    changeProp(x,'n');
+    changeProp(x,'n',function(x){
+	LOG("PUB2:"+str(x.result));
+        RPC.rpcSend("pub",["all",[">> Name Change (%s)",getSelf()]],function(x){
+            LOG("PUB2:"+str(x.result));
+        });
+    });
 }
 function changeChannel(x){
-    changeProp(x,'c');
+    changeProp(x,'c',function(x){
+        LOG("PUB2:"+str(x.result));
+        RPC.rpcSend("pub",["all",[">> Channel Change (%s)",getSelf()]],function(x){
+            LOG("PUB2:"+str(x.result));
+        });
+    });
 }
 function findHush(x){
     var ndx = Channels.indexOf("yell");
@@ -33,7 +47,26 @@ function changeHush(x){
     var oldChannel = Channels[ndx];
     Channels[ndx]  = ((oldChannel=='yell') ? "-" : "")+"yell";
     RPC.rpcSend("sub",[[Channels[ndx]],[oldChannel]],function(x){
+        RPC.rpcSend("pub",["all",[">> Name Change (%s)",getSelf()]],function(x){
+            LOG("PUB2:"+str(x.result));
+        });
+    });
+}
+function changeYell(x){
+    RPC.rpcSend("pub",["yell",[x,getSelf()]],function(x){
         LOG("PUB2:"+str(x.result));
+    });
+}
+function changeSay(x){
+    RPC.rpcSend("pub",[Channels[2],[x,getSelf()]],function(x){
+        LOG("PUB:"+str(x.result));
+    });
+}
+function changePrivate(x,y){
+    LOG("QQQ");
+    LOG("QWQWQW[["+x+"::"+y+"]]");
+    RPC.rpcSend("pub",[x,[y,getSelf()]],function(x){
+        LOG("PUB:"+str(x.result));
     });
 }
 var RPC=new WS(":7001/chat/ws",function(x){ // update status
@@ -60,22 +93,35 @@ window.onkeydown=function(e){
             break;
         }
         case 83: if (e.ctrlKey) { //s 
-            addSay();
+	    //addSay();
+	    $E('#say').focus()
             e.preventDefault();
             break;
         }
         case 89: if (e.ctrlKey) { //y
-            addYell();
+            //addYell();
+	    $E('#yell').focus()
             e.preventDefault();
             break;
         }
-        // p-private msg
-        // q-quit
-        // r-econnect
+        case 80: if (e.ctrlKey) { //p
+            //addPrivate();
+	    $E('#private.dest').focus()
+            e.preventDefault();
+            break;
+        }
+    case 81: if (e.ctrlKey) { // q
+	RPC.disconnect();
+	break;
+    }
+    case 82: if (e.ctrlKey) { // r
+	RPC.reconnect();
+	break;
+    }
     }
 }
 function getSelf(){
-    return [Channels[1]];
+    return [Channels[1],Channels[0]];
 }
 RPC.reconnect(function(){
     LOG("CONNECTED");
