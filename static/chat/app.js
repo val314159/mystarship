@@ -86,7 +86,7 @@ var RPC=new WS(":7001/chat/ws",function(x){ // update status
         }
 });
 window.onkeydown=function(e){
-    LOG("SDGDF" + e.keyCode);
+    //LOG("SDGDF" + e.keyCode);
     switch(e.keyCode){
         case 78: if (e.ctrlKey) { //n
             $E('#name').select();

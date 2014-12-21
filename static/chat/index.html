@@ -1,34 +1,26 @@
 <!DOCTYPE html>
-<link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.8.0/codemirror.min.css">
-<style>
-#cmded_a_stdout { background: lightblue; }
-#cmded_a_stderr { background: pink; }
-</style>
-<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.8.0/codemirror.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/ace/1.1.3/ace.js"></script>
-<script src="/static/uned.js"></script>
-<script src="/static/u.js"></script>
 <script src="/static/rpc.js"></script>
 <a href="index.html">Reload</a>
 Status: <span id="status">--</span>
 <hr>
-<table style='width:100%'>
+<table style="width:100%">
   <tr><td>Name</td>
-  <td><input id="name" name="name" value='?' onchange='changeName(this.value)'></td></tr>
+  <td><input id="name" name="name" value="?" onchange="changeName(this.value)"></td></tr>
   <tr><td>Channel</td>
-  <td><input id="channel" name="channel" value='0' onchange='changeChannel(this.value)'></td></tr>
+  <td><input id="channel" name="channel" value="0" onchange="changeChannel(this.value)"></td></tr>
   <tr><td>Hushed?</td>
-  <td><input id=hush name="hush" type=checkbox onchange='changeHush(this.value)'></td></tr>
+  <td><input id="hush" name="hush" type="checkbox" onchange="changeHush(this.value)"></td></tr>
   <tr><td>Yell:</td>
-  <td><input id=yell name="yell"    onchange='changeYell(this.value)'></td></tr>
+  <td><input id="yell" name="yell"    onchange="changeYell(this.value)"></td></tr>
   <tr><td>Say:</td>
-  <td><input id=say name="say"     onchange='changeSay(this.value)'></td></tr>
+  <td><input id="say" name="say"     onchange="changeSay(this.value)"></td></tr>
   <tr><td>Recipeint:</td>
-  <td><input id=private.dest name="private.dest"></td></tr>
+  <td><input id="private.dest" name="private.dest"></td></tr>
   <tr><td>Message:</td>
-  <td><input id=private name="private" onchange="changePrivate($E('#private.dest').value,this.value)"></td></tr>
+  <td><input id="private" name="private"
+	     onchange="changePrivate($E('#private.dest').value,this.value)"></td></tr>
   <tr><td>Who:</td>
-  <td><input id=who name="who" onchange="changeWho(this.value)"></td></tr>
+  <td><input id="who" name="who" onchange="changeWho(this.value)"></td></tr>
 </table>
 <hr>
 <script src="/static/chat/app.js"></script>

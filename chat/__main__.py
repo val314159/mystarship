@@ -8,8 +8,32 @@ class PubSubMixin(object):
         try:
             _._send(dict(method='pub',params=[ch,msg]))
         except:
-            print "DIDNT WORK"
+            print "DIDNT WORK", ch, msg
             tb.print_exc()
+            print "CLOSE IT1"
+            _.ws.close()
+            id,name = '',''
+            lastu = None
+            for k,v in _.PS.channels.iteritems():
+                for u in v:
+                    if u.ws == _.ws:
+                        lastu = u
+                        if k.startswith('0x'):
+                            print "ID:" + k
+                            id = k
+                        elif k.startswith('n'):
+                            print "NAME:" + k
+                            name = k
+                            pass
+                        pass
+                    pass
+                try:   v.remove(_)
+                except ValueError:  pass
+                pass            
+            #lastu.close()
+            print "CLOSE IT2", repr((id,name))
+            _.PS.pub("all","%s just left" % repr((id,name)))
+            pass
         pass
     def __init__(_,*a,**kw):
         _.Sessions[id(_)]=_
@@ -17,7 +41,7 @@ class PubSubMixin(object):
         pass
     def close(_):
         del _.Sessions[id(_)]
-        _.PS.unsub(_.subbed,_)
+        #_.PS.unsub(_.subbed,_)
         super(PubSubMixin,_).close()
         pass
     def dump(_):
@@ -34,12 +58,6 @@ class PubSubMixin(object):
     def json_sub(_,new_ch,old_ch=[]):
         _.PS.unsub(old_ch,_)
         _.PS.sub(new_ch,_)
-        # do subbed stuff here
-
-        print '/*'*80
-        _.dump()
-        print '\\*'*80
-
         return dict(result=True)
     def json_pub(_,ch,msg):
         _.PS.pub(ch,msg)
@@ -49,9 +67,7 @@ class PubSubMixin(object):
 import mystarship
 class ChatSession(mystarship.SessionBase,PubSubMixin):
     "Concrete session"
-    def __init__(_,*a,**kw):
-        super(ChatSession,_).__init__(*a,**kw)
-        pass
+    def __init__(_,*a,**kw): super(ChatSession,_).__init__(*a,**kw)
     def close(_): super(ChatSession,_).close()
     def json_intro(_):
         return dict(result=['''
