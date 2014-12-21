@@ -9,7 +9,10 @@ def fwrite(f,value): f.write(value); return f
 
 class SessionBase(object):
     "Base class for Websocket RPC Sessions."
-    def __init__(_,ws,prefix='json_',*a,**kw):_.ws=ws;_.pfx=prefix;super(SessionBase,_).__init__(*a,**kw)
+    def __init__(_,ws,prefix='json_',*a,**kw):
+        _.ws, _.pfx = ws, prefix
+        super(SessionBase,_).__init__(*a,**kw)
+        pass
     def close(_): _.ws.close(); super(SessionBase,_).close()
     def _dispatch_message(_,message=None,obj=None):
         if obj is None: obj = _
@@ -40,6 +43,7 @@ class SessionBase(object):
         _.ws.send(json.dumps(msg))
     def _dispatch_loop(_):
         while _._dispatch_message(): pass
+        print "EOU", _, _.channels
 
 class FsSessMixin(object):
     "Mix this in for filesystem management"
@@ -165,9 +169,11 @@ def register_session_class(cls):
     pass
 pass
 
+@app.route('/chat/ws')
 @app.route('/ws')
 def web_ws():
     "serve up the websocket"
+    print _SessionClass
     s=_SessionClass(bottle.request.environ["wsgi.websocket"])
     try   : s._dispatch_loop()
     except: s._return_error()

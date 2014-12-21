@@ -20,10 +20,26 @@ class PubSubMixin(object):
         _.PS.unsub(_.subbed,_)
         super(PubSubMixin,_).close()
         pass
+    def dump(_):
+        from collections import defaultdict
+        out = defaultdict(list)
+        for k,v in _.PS.channels.iteritems():
+            for u in v:
+                out[ hex(id(u)) ].append( k )
+                pass
+            pass
+        return out
+    def json_who(_):
+        return dict(result=_.dump())
     def json_sub(_,new_ch,old_ch=[]):
         _.PS.unsub(old_ch,_)
         _.PS.sub(new_ch,_)
         # do subbed stuff here
+
+        print '/*'*80
+        _.dump()
+        print '\\*'*80
+
         return dict(result=True)
     def json_pub(_,ch,msg):
         _.PS.pub(ch,msg)
@@ -47,17 +63,6 @@ You see nothing but darkness.
         '''])
     pass
 ####################################################
-
-import bottle
-app = bottle.default_app()
-
-@app.route('/ws')
-@app.route('/chat/ws')
-def chat_ws():
-    print "HEYHEYHEY"
-    "serve up the websocket"
-    s=ChatSession(bottle.request.environ["wsgi.websocket"])
-    try   : s._dispatch_loop()
-    except: s._return_error()
-
-if __name__=='__main__': mystarship.launch()
+if __name__=='__main__':
+    mystarship.register_session_class(ChatSession)
+    mystarship.launch()

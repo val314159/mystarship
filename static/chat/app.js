@@ -28,6 +28,12 @@ function changeName(x){
         });
     });
 }
+function changeWho(){
+    RPC.rpcSend("who",[],function(x){
+            LOG("WHO:"+str(x.result));
+            appendHTML("WHO:"+str(x.result));
+        });
+}
 function changeChannel(x){
     changeProp(x,'c',function(x){
         LOG("PUB2:"+str(x.result));
