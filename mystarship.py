@@ -160,7 +160,7 @@ def web_static(path):
 @app.route('/')
 def web_root():
     "serve up /"
-    return web_static('editor.html')
+    return web_static('index.html')
 
 _SessionClass=Session
 def register_session_class(cls):

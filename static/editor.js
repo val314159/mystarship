@@ -19,45 +19,17 @@ function save(buf,pathEltname) {
       LOG("SAVED!"+str(x.result));
     })
 }
-/*
-function jobs() {
-    RPC.rpcSend("jobs",[],function(x){
-        LOG("JOBS:"+str(x.result));
-        $E('#cmded_a.command').innerHTML = 'jobs';
-        $E('#cmded_a_stdout' ).innerHTML = ''
-        for (var n=0; n<x.result.length; n++) {
-            $E('#cmded_a_stdout' ).innerHTML += '<br>'+str(x.result[n]);
-        }
-        $E('#cmded_a_stderr' ).innerHTML = '';
-	});
-}
-function spawn() {
-    cmd = prompt("enter command:","");
-    RPC.rpcSend("spawn",[cmd],function(x){
-            LOG("SPAWNED!"+str(x.result));
-            $E('#cmded_a.command').innerHTML = x.result[0];
-            $E('#cmded_a_stdout' ).innerHTML = '';
-            $E('#cmded_a_stderr' ).innerHTML = '';
-	});
-}
-function destroy() {
-    cmd = prompt("enter job index to destroy:","");
-    RPC.rpcSend("destroy",[cmd],function(x){
-      LOG("DESTROY:"+str(x.result));
-    })
-}
-*/
 function loadDir(x){
     var elt=$E('#dired_a');
     elt.innerHTML = ''
     var files = x.result[0];
     for (var n=0; n<files.length; n++) {
-	var a=files[n][0];
-	var b=files[n][1];
-	for (var m=0; m<b.length; m++) {
-//        LOG("::"+a+"//"+b[m]);
-        elt.innerHTML += mkThing(a,b[m])
-	}
+	    var a=files[n][0];
+	    var b=files[n][1];
+	    for (var m=0; m<b.length; m++) {
+            //        LOG("::"+a+"//"+b[m]);
+            elt.innerHTML += mkThing(a,b[m])
+	    }
     }
     var path=x.result[2]+'/'+x.result[3];
     LOG("PATH:"+path);
@@ -89,6 +61,12 @@ document.onkeydown=function(e){
 	    spawn();
 	}
 	break;
+	case 74: // 'J'
+	    jobs();
+	    break;
+    case 75: // 'K'
+        destroy();
+	    break;
     case 90: // 'Z'
 	if (e.ctrlKey) {
 	    e.preventDefault();
