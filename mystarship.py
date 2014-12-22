@@ -43,7 +43,7 @@ class SessionBase(object):
         _.ws.send(json.dumps(msg))
     def _dispatch_loop(_):
         while _._dispatch_message(): pass
-        print "EOU", _, _.channels
+        _.close()
 
 class FsSessMixin(object):
     "Mix this in for filesystem management"

@@ -29,6 +29,7 @@ function changeName(x){
     });
 }
 function changeWho(){
+    $E("#who").blur();
     RPC.rpcSend("who",[],function(x){
             LOG("WHO:"+str(x.result));
             appendHTML("WHO:"+str(x.result));
@@ -51,27 +52,30 @@ function findHush(x){
 function changeHush(x){
     var ndx = findHush();
     var oldChannel = Channels[ndx];
-    Channels[ndx]  = ((oldChannel=='yell') ? "-" : "")+"yell";
+    var hushed = (oldChannel=='yell');
+    Channels[ndx]  = ((hushed) ? "-" : "")+"yell";
     RPC.rpcSend("sub",[[Channels[ndx]],[oldChannel]],function(x){
-        RPC.rpcSend("pub",["all",[">> Name Change (%s)",getSelf()]],function(x){
+	    var msg = (hushed) ? "hushed" : "unhushed" ;
+	    RPC.rpcSend("pub",["all",[">> ("+getSelf()+") has "+msg]],function(x){
             LOG("PUB2:"+str(x.result));
         });
     });
 }
 function changeYell(x){
-    RPC.rpcSend("pub",["yell",[x,getSelf()]],function(x){
+    $E("#yell").select();
+    RPC.rpcSend("pub",["yell",["(*"+getSelf()+"*) "+x+""]],function(x){
         LOG("PUB2:"+str(x.result));
     });
 }
 function changeSay(x){
-    RPC.rpcSend("pub",[Channels[2],[x,getSelf()]],function(x){
+    $E("#say").select();
+    RPC.rpcSend("pub",[Channels[2],["("+getSelf()+") " + x]],function(x){
         LOG("PUB:"+str(x.result));
     });
 }
 function changePrivate(x,y){
-    LOG("QQQ");
-    LOG("QWQWQW[["+x+"::"+y+"]]");
-    RPC.rpcSend("pub",[x,[y,getSelf()]],function(x){
+    $E("#private").select();
+    RPC.rpcSend("pub",[x,["("+x+", p) " + y]],function(x){
         LOG("PUB:"+str(x.result));
     });
 }
@@ -85,43 +89,67 @@ var RPC=new WS(":7001/chat/ws",function(x){ // update status
           LOG("Unknown non-id type (expected pub)");
         }
 });
+var commandMode = true;
 window.onkeydown=function(e){
     //LOG("SDGDF" + e.keyCode);
-    switch(e.keyCode){
-        case 78: if (e.ctrlKey) { //n
+    switch(e.keyCode)
+	{
+	case 190: //'.'
+	case 191: //'/'
+	    {
+		commandMode = true;
+		e.preventDefault();
+		LOG("ok:");
+	    }
+	break;
+        case 78: if (commandMode || e.ctrlKey) { //n
             $E('#name').select();
             e.preventDefault();
+	    commandMode = false;
             break;
         }
-        case 67: if (e.ctrlKey) { //c
+        case 67: if (commandMode || e.ctrlKey) { //c
             $E('#channel').select();
             e.preventDefault();
+	    commandMode = false;
             break;
         }
-        case 83: if (e.ctrlKey) { //s 
+        case 83: if (commandMode||e.ctrlKey) { //s 
 	    //addSay();
-	    $E('#say').focus()
+	    $E('#say').select()
             e.preventDefault();
+	    commandMode = false;
             break;
         }
-        case 89: if (e.ctrlKey) { //y
+        case 87: if (commandMode||e.ctrlKey) { //w
             //addYell();
-	    $E('#yell').focus()
+	    $E('#who').select()
             e.preventDefault();
+	    commandMode = false;
             break;
         }
-        case 80: if (e.ctrlKey) { //p
+        case 89: if (commandMode||e.ctrlKey) { //y
+            //addYell();
+	    $E('#yell').select()
+            e.preventDefault();
+	    commandMode = false;
+            break;
+        }
+        case 80: if (commandMode||e.ctrlKey) { //p
             //addPrivate();
-	    $E('#private.dest').focus()
+	    $E('#private.dest').select()
             e.preventDefault();
+	    commandMode = false;
             break;
         }
-    case 81: if (e.ctrlKey) { // q
+    case 81: if (commandMode||e.ctrlKey) { // q
 	RPC.disconnect();
+	commandMode = false;
 	break;
     }
-    case 82: if (e.ctrlKey) { // r
+    case 82: if (commandMode||e.ctrlKey) { // r
 	RPC.reconnect();
+	commandMode = false;
 	break;
     }
     }
@@ -136,12 +164,13 @@ RPC.reconnect(function(){
         appendHTML(x.result[0]);
         RPC.rpcSend("sub",[Channels],function(x){
             LOG("SUB:"+str(x.result));
-            RPC.rpcSend("pub",["c0",["HELLO HERE I AM",getSelf()]],function(x){
-                LOG("PUB:"+str(x.result));
-                RPC.rpcSend("pub",["yell",["HELLO HERE I AM",getSelf()]],function(x){
-                    LOG("PUB2:"+str(x.result));
-                });        
-            });        
         });
     });
 });
+
+$E("#who").onkeydown=function(e){
+	if (e.keyCode==13) {
+	    LOG("YAY");
+	    changeWho();
+	}
+}
