@@ -4,7 +4,8 @@ It's a web backend with the ability to edit files and manage processes
 live in your browser.  Uses a nice async websocket backend.
 
 """
-import os, os.path, sys, json, traceback as tb
+import gevent.monkey ; gevent.monkey.patch_all()
+import os, os.path, sys, json, traceback as tb, gevent
 def fwrite(f,value): f.write(value); return f
 
 class SessionBase(object):
@@ -73,26 +74,12 @@ class FsSessMixin(object):
         print "LOAD RESULT", repr(result)
         return dict(result=result)
 
-def unblock(f):
-    "sets file to nonblocked state.  sets proc's stdout/stderr to nonblocked"
-    import os,fcntl,subprocess
-    if type(f)==int:
-        fd=f
-        fl = fcntl.fcntl(fd, fcntl.F_GETFL)
-        fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
-        return f
-    elif type(f)==subprocess.Popen:
-        unblock(f.stderr)
-        unblock(f.stdout)
-        return f
-    else:
-        return unblock(f.fileno())
-
 class ProcSessMixin(object):
     "Mix this in for process management"
     def __init__(_,*a,**kw): super(ProcSessMixin,_).__init__(*a,**kw)
     def close(_): super(ProcSessMixin,_).close()
     Procs = []
+    Procs2 = {}
     def json_jobs(_,target='#edit'):
         "get jobs table."
         return dict(result=[dict(index=n,pid=p.pid,poll=p.poll())
@@ -104,39 +91,59 @@ class ProcSessMixin(object):
                      stdout=sp.PIPE,
                      stderr=sp.PIPE).communicate()
         return dict(result=[command]+list(z))
+    def find_cmd(_,index):
+        p = _.Procs[int(index)]
+        for k,v in _.Procs2.iteritems():
+            if p==v:
+                return k,v
+            pass
+        return None,None
+    def json_restart(_,index,target='#edit'):
+        cmd,p = _.find_cmd(index)
+        _.json_destroy(index)
+        _.json_spawn(cmd,target)
+        pass
     def json_destroy(_,index):
         "destroy process (group)"
-        p = _.Procs[int(index)]
-        os.killpg((p.pid),9)
+        k,p = _.find_cmd(index)
+        os.killpg(p.pid,9)
+        if k:
+            del _.Procs2[k]
+            pass
         return dict(result=True)
     def json_spawn(_,command,target='#edit',cwd=None,output=True):
         "remote system command with async output"
         import os
         import subprocess as sp
-        p = unblock(sp.Popen(command,shell=True,cwd=cwd,
-                             preexec_fn=os.setsid,
-                             stdout=sp.PIPE,stderr=sp.PIPE))
+        p = sp.Popen(command,shell=True,cwd=cwd,
+                     preexec_fn=os.setsid, close_fds=True,
+                     stdout=sp.PIPE,stderr=sp.PIPE)
+        _.Procs2[command] = p
         _.Procs.append(p)
         index = len(_.Procs)-1
+        print 100
         if output: _.json_spew(index)
+        print 200
         return dict(result=[command, repr(p), p.pid, index])
     def json_spew(_,index):
         "get remote job output"
         p = _.Procs[int(index)]
-        import gevent
-        def loop():
+        def loop_stdout():
             while 1:
-                gevent.sleep(0.1)
-                try   : so=p.stdout.read(1024)
-                except: so=''
-                try   : se=p.stderr.read(1024)
-                except: se=''
-                if so or se:
-                    _.ws.send(json.dumps(dict(method='spawn',params=dict(output=[so,se],index=index))))
-                    pass
+                print "FDOUT", p.stdout.fileno
+                x = gevent.os.tp_read(p.stdout.fileno(),1024)
+                _.ws.send(json.dumps(dict(method='spawn',params=dict(output=[x,''],index=index))))
                 pass
             pass
-        gevent.spawn(loop)
+        def loop_stderr():
+            while 1:
+                print "FDERR", p.stderr.fileno
+                x = gevent.os.tp_read(p.stderr.fileno(),1024)
+                _.ws.send(json.dumps(dict(method='spawn',params=dict(output=['',x],index=index))))
+                pass
+            pass
+        gevent.spawn(loop_stdout)
+        gevent.spawn(loop_stderr)
         return dict(result=True)
 
 class Session(SessionBase,FsSessMixin,ProcSessMixin):
