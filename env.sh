@@ -1,4 +1,4 @@
-alias wsloop="while true; do echo RESTART ; python -m mystarship ; done"
+alias wsloop="while true; do echo RESTART ; sleep 1; python -m mystarship ; done"
 
 install () {
   if [ -d .v ]

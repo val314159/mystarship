@@ -7,16 +7,20 @@ live in your browser.  Uses a nice async websocket backend.
 import os, os.path, sys, json, traceback as tb
 def fwrite(f,value): f.write(value); return f
 
-class SessionBase:
+class SessionBase(object):
     "Base class for Websocket RPC Sessions."
-    def __init__(_,ws,prefix='json_'):_.ws=ws;_.pfx=prefix
+    def __init__(_,ws,prefix='json_',*a,**kw):
+        _.ws, _.pfx = ws, prefix
+        super(SessionBase,_).__init__(*a,**kw)
+        pass
+    def close(_): _.ws.close(); super(SessionBase,_).close()
     def _dispatch_message(_,message=None,obj=None):
         if obj is None: obj = _
         if message is None: message = _.ws.receive()
-        print "MESSAGE", repr(message)
+        #print "MESSAGE", repr(message)
         if not message: return False
         msg = json.loads(message)
-        print "MSG", repr(msg)
+        print "====================MSG", repr(msg)
         def dispatch(method,params,id=None):
             fn = getattr(obj,_.pfx+method)
             if   type(params)==type([]): return fn( *params)
@@ -35,11 +39,16 @@ class SessionBase:
         print '*'*80
         _.ws.send(dict(error=True,stacktrace=tb.format_exc().split('\n')))
         pass
+    def _send(_,msg):
+        _.ws.send(json.dumps(msg))
     def _dispatch_loop(_):
         while _._dispatch_message(): pass
+        _.close()
 
-class FsSessMixin:
+class FsSessMixin(object):
     "Mix this in for filesystem management"
+    def __init__(_,*a,**kw): super(FsSessMixin,_).__init__(*a,**kw)
+    def close(_): super(FsSessMixin,_).close()
     def json_save(_,name,value,offset=0,partial=False):
         "save a file (or file data)"
         fwrite(open(name,'w'),value).close()
@@ -53,52 +62,36 @@ class FsSessMixin:
 		a,b=os.path.split(name)
 	except IOError:
 		import os
-
-                print '@'*80
-                from pprint import pprint
-
                 def valid(x):
                     if x.startswith('./.'): return False
                     return True
-
-                pprint([  (x[0],x[2])  for  x  in  os.walk('.')  if  valid(x[0])  ])
-                print '@'*80
-
-                for a,b,c in os.walk('.'):
-                    if a.startswith('./.'): continue
-                    print "A", a
-                    print "C", c
-                    #for f in c:
-                    #    print " ----- Z", (a,f)
-                    #    pass
-                    pass
-                print 99,'@'*80
                 out = [(a,[z for z in c if not z.endswith('~')]) for a,b,c in os.walk('.') if valid(a)]
-		#out=os.listdir(name)
 		a=name
 		pass
         if a[-1]=='/': a=a[:-1]
-	result=[out,target,a,b]
-	print "LOAD RESULT", repr(result)
+        result=[out,target,a,b]
+        print "LOAD RESULT", repr(result)
         return dict(result=result)
 
 def unblock(f):
-  "sets file to nonblocked state.  sets proc's stdout/stderr to nonblocked"
-  import os,fcntl,subprocess
-  if type(f)==int:
-      fd=f
-      fl = fcntl.fcntl(fd, fcntl.F_GETFL)
-      fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
-      return f
-  elif type(f)==subprocess.Popen:
-      unblock(f.stderr)
-      unblock(f.stdout)
-      return f
-  else:
-      return unblock(f.fileno())
+    "sets file to nonblocked state.  sets proc's stdout/stderr to nonblocked"
+    import os,fcntl,subprocess
+    if type(f)==int:
+        fd=f
+        fl = fcntl.fcntl(fd, fcntl.F_GETFL)
+        fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
+        return f
+    elif type(f)==subprocess.Popen:
+        unblock(f.stderr)
+        unblock(f.stdout)
+        return f
+    else:
+        return unblock(f.fileno())
 
-class ProcSessMixin:
+class ProcSessMixin(object):
     "Mix this in for process management"
+    def __init__(_,*a,**kw): super(ProcSessMixin,_).__init__(*a,**kw)
+    def close(_): super(ProcSessMixin,_).close()
     Procs = []
     def json_jobs(_,target='#edit'):
         "get jobs table."
@@ -113,7 +106,7 @@ class ProcSessMixin:
         return dict(result=[command]+list(z))
     def json_destroy(_,index):
         "destroy process (group)"
-	p = _.Procs[int(index)]
+        p = _.Procs[int(index)]
         os.killpg((p.pid),9)
         return dict(result=True)
     def json_spawn(_,command,target='#edit',cwd=None,output=True):
@@ -129,7 +122,7 @@ class ProcSessMixin:
         return dict(result=[command, repr(p), p.pid, index])
     def json_spew(_,index):
         "get remote job output"
-	p = _.Procs[int(index)]
+        p = _.Procs[int(index)]
         import gevent
         def loop():
             while 1:
@@ -148,6 +141,8 @@ class ProcSessMixin:
 
 class Session(SessionBase,FsSessMixin,ProcSessMixin):
     "Concrete session for managing files and procs"
+    def __init__(_,*a,**kw): super(Session,_).__init__(*a,**kw)
+    def close(_): super(Session,_).close()
     pass
 
 ####################################################
@@ -167,10 +162,19 @@ def web_root():
     "serve up /"
     return web_static('editor.html')
 
+_SessionClass=Session
+def register_session_class(cls):
+    global _SessionClass
+    _SessionClass = cls
+    pass
+pass
+
+@app.route('/chat/ws')
 @app.route('/ws')
 def web_ws():
     "serve up the websocket"
-    s=Session(bottle.request.environ["wsgi.websocket"])
+    print _SessionClass
+    s=_SessionClass(bottle.request.environ["wsgi.websocket"])
     try   : s._dispatch_loop()
     except: s._return_error()
 

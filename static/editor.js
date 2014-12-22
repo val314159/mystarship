@@ -19,10 +19,17 @@ function save(buf,pathEltname) {
       LOG("SAVED!"+str(x.result));
     })
 }
+/*
 function jobs() {
     RPC.rpcSend("jobs",[],function(x){
-      LOG("JOBS:"+str(x.result));
-    })
+        LOG("JOBS:"+str(x.result));
+        $E('#cmded_a.command').innerHTML = 'jobs';
+        $E('#cmded_a_stdout' ).innerHTML = ''
+        for (var n=0; n<x.result.length; n++) {
+            $E('#cmded_a_stdout' ).innerHTML += '<br>'+str(x.result[n]);
+        }
+        $E('#cmded_a_stderr' ).innerHTML = '';
+	});
 }
 function spawn() {
     cmd = prompt("enter command:","");
@@ -39,6 +46,7 @@ function destroy() {
       LOG("DESTROY:"+str(x.result));
     })
 }
+*/
 function loadDir(x){
     var elt=$E('#dired_a');
     elt.innerHTML = ''
@@ -47,7 +55,7 @@ function loadDir(x){
 	var a=files[n][0];
 	var b=files[n][1];
 	for (var m=0; m<b.length; m++) {
-        LOG("::"+a+"//"+b[m]);
+//        LOG("::"+a+"//"+b[m]);
         elt.innerHTML += mkThing(a,b[m])
 	}
     }
@@ -72,7 +80,7 @@ function load(filename){
   LOG("REQ SENT");
 }
 document.onkeydown=function(e){
-    LOG("KC " + e.keyCode);
+    //LOG("KC " + e.keyCode);
     var cmd;
     switch(e.keyCode){
     case 81: // 'Q'
