@@ -56,29 +56,33 @@ document.onkeydown=function(e){
     var cmd;
     switch(e.keyCode){
     case 81: // 'Q'
-	if (e.ctrlKey) {
-	    e.preventDefault();
-	    spawn();
-	}
-	break;
+    	if (e.ctrlKey) {
+	        e.preventDefault();
+	        spawn();
+    	}
+    	break;
 	case 74: // 'J'
-	    jobs();
+        if (e.ctrlKey) {
+	        jobs();
+	    }
 	    break;
     case 75: // 'K'
-        destroy();
+        if (e.ctrlKey) {
+            destroy();
+        }
 	    break;
     case 90: // 'Z'
-	if (e.ctrlKey) {
-	    e.preventDefault();
-	    cmd = prompt("enter command:","");
-	    RPC.rpcSend("system",[cmd],function(x){
-		    LOG("SYSTEMED!"+str(x.result));
-		    $E('#cmded_a.command').innerHTML = x.result[0];
-		    $E('#cmded_a_stdout' ).innerHTML = x.result[1];
-		    $E('#cmded_a_stderr' ).innerHTML = x.result[2];
-		});
-	}
-	break;
+	    if (e.ctrlKey) {
+	        e.preventDefault();
+    	    cmd = prompt("enter command:","");
+	        RPC.rpcSend("system",[cmd],function(x){
+		        LOG("SYSTEMED!"+str(x.result));
+		        $E('#cmded_a.command').innerHTML = x.result[0];
+    		    $E('#cmded_a_stdout' ).innerHTML = x.result[1];
+	    	    $E('#cmded_a_stderr' ).innerHTML = x.result[2];
+		    });
+	    }
+    	break;
     }
 }
 RPC.reconnect(function(){ load('.') });

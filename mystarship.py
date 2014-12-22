@@ -82,10 +82,6 @@ class ProcSessMixin(object):
     Procs2 = {}
     def json_jobs(_,target='#edit'):
         "get jobs table."
-        return dict(result=[dict(index=n,pid=p.pid,poll=p.poll())
-                            for n,p in enumerate(_.Procs)])
-    def json_jobs2(_,target='#edit'):
-        "get jobs table2."
         return dict(result=[dict(cmd=cmd,index=n,pid=p.pid,poll=p.poll())
                             for n,(cmd,p) in enumerate(_.Procs2.iteritems())])
     def json_system(_,command,target='#edit',cwd=None):

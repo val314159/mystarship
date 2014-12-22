@@ -72,7 +72,7 @@ function WS(path,$status,extra) {
 }
 
 function jobs() {
-    RPC.rpcSend("jobs2",[],function(x){
+    RPC.rpcSend("jobs",[],function(x){
         LOG("JOBS2:"+str(x.result));
         $E('#cmded_a.command').innerHTML = 'jobs';
         $E('#cmded_a_stdout' ).innerHTML = 'Jobs:'
