@@ -97,14 +97,12 @@ if (0) {
   editor2 = ace.edit("bufed_b");
 } else {
   editor1 = ace.edit("bufed_a");
-
-  var emacs = require("ace/keyboard/emacs").handler;
-  ace.setKeyboardHandler(emacs);
-
+  //var emacs = require("ace/keyboard/emacs").handler;
+  //ace.setKeyboardHandler(emacs);
   editor1.commands.addCommand({
       name: 'myCommand', readOnly: true,
       bindKey: {win: 'Ctrl-S',  mac: 'Ctrl-S'},
       exec: function(editor){save(editor1,'#bufed_a.path')}});
   editor2 = new G.BufEd("bufed_b");
-  myCodeMirror = CodeMirror($E('bufed_c'));
+  //myCodeMirror = CodeMirror($E('bufed_c'));
 }
