@@ -1,14 +1,11 @@
 alias wsloop="while true; do echo RESTART ; sleep 1; python -m mystarship ; done"
 
-install () {
-  if [ -d .v ]
-  then
+if [ -d .v ]
+then
     echo .v exists
-  else
+else
     virtualenv .v
-  fi
-  . .v/bin/activate
-  pip install -r requirements.txt
-}
+    .v/bin/pip install -r requirements.txt
+fi
 
 . .v/bin/activate

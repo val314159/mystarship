@@ -4,6 +4,15 @@ function $E(x){return document.getElementById(x.substr(1))}
 function $I(e,v){e.innerHTML=v;return e}
 function LOG(x){console.log(x)}
 //function LOG(x){$E('#out').appendChild($I($DCE('li'),x))}
+
+function jump(h){
+    var elt=$E(h);
+    var top = elt.offsetTop; //Getting Y of target element
+    window.scrollTo(0, top);                        //Go there.
+//    elt.focus();
+   return elt;
+}
+
 var ___id=100;
 function getId(){return ++___id}
 function html2text(text) {
