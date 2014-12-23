@@ -4,7 +4,8 @@ It's a web backend with the ability to edit files and manage processes
 live in your browser.  Uses a nice async websocket backend.
 
 """
-import os, os.path, sys, json, traceback as tb
+import gevent.monkey ; gevent.monkey.patch_all()
+import os, os.path, sys, json, traceback as tb, gevent
 def fwrite(f,value): f.write(value); return f
 
 class SessionBase(object):
@@ -13,7 +14,6 @@ class SessionBase(object):
         _.ws, _.pfx = ws, prefix
         super(SessionBase,_).__init__(*a,**kw)
         pass
-    def close(_): _.ws.close(); super(SessionBase,_).close()
     def _dispatch_message(_,message=None,obj=None):
         if obj is None: obj = _
         if message is None: message = _.ws.receive()
@@ -43,12 +43,14 @@ class SessionBase(object):
         _.ws.send(json.dumps(msg))
     def _dispatch_loop(_):
         while _._dispatch_message(): pass
-        _.close()
+        if hasattr(_,'close'):
+            _.close()
+            pass
+        pass
 
 class FsSessMixin(object):
     "Mix this in for filesystem management"
     def __init__(_,*a,**kw): super(FsSessMixin,_).__init__(*a,**kw)
-    def close(_): super(FsSessMixin,_).close()
     def json_save(_,name,value,offset=0,partial=False):
         "save a file (or file data)"
         fwrite(open(name,'w'),value).close()
@@ -73,30 +75,14 @@ class FsSessMixin(object):
         print "LOAD RESULT", repr(result)
         return dict(result=result)
 
-def unblock(f):
-    "sets file to nonblocked state.  sets proc's stdout/stderr to nonblocked"
-    import os,fcntl,subprocess
-    if type(f)==int:
-        fd=f
-        fl = fcntl.fcntl(fd, fcntl.F_GETFL)
-        fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
-        return f
-    elif type(f)==subprocess.Popen:
-        unblock(f.stderr)
-        unblock(f.stdout)
-        return f
-    else:
-        return unblock(f.fileno())
-
 class ProcSessMixin(object):
     "Mix this in for process management"
     def __init__(_,*a,**kw): super(ProcSessMixin,_).__init__(*a,**kw)
-    def close(_): super(ProcSessMixin,_).close()
     Procs = []
     def json_jobs(_,target='#edit'):
         "get jobs table."
-        return dict(result=[dict(index=n,pid=p.pid,poll=p.poll())
-                            for n,p in enumerate(_.Procs)])
+        return dict(result=[dict(cmd=cmd,index=n,pid=p.pid,poll=p.poll())
+                            for n,(p,cmd) in enumerate(_.Procs)])
     def json_system(_,command,target='#edit',cwd=None):
         "remote system command.  json_spawn is better."
         import subprocess as sp
@@ -104,45 +90,74 @@ class ProcSessMixin(object):
                      stdout=sp.PIPE,
                      stderr=sp.PIPE).communicate()
         return dict(result=[command]+list(z))
+    def find_cmd(_,index):
+        ret = _.Procs[int(index)]
+        print " . . FIND CMD", repr(ret)
+        return ret
+    def json_restart(_,index,target='#edit'):
+        p,cmd = _.find_cmd(index)
+        print "RESTART 1", cmd, p
+        _.json_destroy(index)
+        print "RESTART 2"
+        gevent.sleep(2)
+        print "RESTART 3", cmd, target
+        _.json_spawn(cmd,target)
+        print "RESTART 4"
+        pass
     def json_destroy(_,index):
         "destroy process (group)"
-        p = _.Procs[int(index)]
-        os.killpg((p.pid),9)
+        p,cmd = _.find_cmd(index)
+        os.killpg(p.pid,9)
+        if cmd:
+            #del _.Procs2[cmd]
+            pass
         return dict(result=True)
     def json_spawn(_,command,target='#edit',cwd=None,output=True):
         "remote system command with async output"
         import os
         import subprocess as sp
-        p = unblock(sp.Popen(command,shell=True,cwd=cwd,
-                             preexec_fn=os.setsid,
-                             stdout=sp.PIPE,stderr=sp.PIPE))
-        _.Procs.append(p)
+        print "qq 100", repr(command)
+        p = sp.Popen(command,shell=True,cwd=cwd,
+                     preexec_fn=os.setsid, close_fds=True,
+                     stdout=sp.PIPE,stderr=sp.PIPE)
+        print "qq 101", command
+        _.Procs.append([p,command])
+        print "qq 102", command
         index = len(_.Procs)-1
+        print 100
         if output: _.json_spew(index)
+        print 200
         return dict(result=[command, repr(p), p.pid, index])
     def json_spew(_,index):
         "get remote job output"
-        p = _.Procs[int(index)]
-        import gevent
-        def loop():
+        p,cmd = _.find_cmd(index)
+        def loop_stdout():
             while 1:
-                gevent.sleep(0.1)
-                try   : so=p.stdout.read(1024)
-                except: so=''
-                try   : se=p.stderr.read(1024)
-                except: se=''
-                if so or se:
-                    _.ws.send(json.dumps(dict(method='spawn',params=dict(output=[so,se],index=index))))
-                    pass
+                print "FDOUT", p.stdout.fileno
+                x = gevent.os.tp_read(p.stdout.fileno(),1024)
+                print "FDOUTX", repr(x)
+                if not x:
+                    break
+                _.ws.send(json.dumps(dict(method='spawn',params=dict(output=[x,''],index=index))))
                 pass
             pass
-        gevent.spawn(loop)
+        def loop_stderr():
+            while 1:
+                print "FDERR", p.stderr.fileno
+                x = gevent.os.tp_read(p.stderr.fileno(),1024)
+                print "FDERRX", repr(x)
+                if not x:
+                    break
+                _.ws.send(json.dumps(dict(method='spawn',params=dict(output=['',x],index=index))))
+                pass
+            pass
+        gevent.spawn(loop_stdout)
+        gevent.spawn(loop_stderr)
         return dict(result=True)
 
 class Session(SessionBase,FsSessMixin,ProcSessMixin):
     "Concrete session for managing files and procs"
     def __init__(_,*a,**kw): super(Session,_).__init__(*a,**kw)
-    def close(_): super(Session,_).close()
     pass
 
 ####################################################
@@ -160,7 +175,7 @@ def web_static(path):
 @app.route('/')
 def web_root():
     "serve up /"
-    return web_static('editor.html')
+    return web_static('index.html')
 
 _SessionClass=Session
 def register_session_class(cls):

@@ -19,45 +19,17 @@ function save(buf,pathEltname) {
       LOG("SAVED!"+str(x.result));
     })
 }
-/*
-function jobs() {
-    RPC.rpcSend("jobs",[],function(x){
-        LOG("JOBS:"+str(x.result));
-        $E('#cmded_a.command').innerHTML = 'jobs';
-        $E('#cmded_a_stdout' ).innerHTML = ''
-        for (var n=0; n<x.result.length; n++) {
-            $E('#cmded_a_stdout' ).innerHTML += '<br>'+str(x.result[n]);
-        }
-        $E('#cmded_a_stderr' ).innerHTML = '';
-	});
-}
-function spawn() {
-    cmd = prompt("enter command:","");
-    RPC.rpcSend("spawn",[cmd],function(x){
-            LOG("SPAWNED!"+str(x.result));
-            $E('#cmded_a.command').innerHTML = x.result[0];
-            $E('#cmded_a_stdout' ).innerHTML = '';
-            $E('#cmded_a_stderr' ).innerHTML = '';
-	});
-}
-function destroy() {
-    cmd = prompt("enter job index to destroy:","");
-    RPC.rpcSend("destroy",[cmd],function(x){
-      LOG("DESTROY:"+str(x.result));
-    })
-}
-*/
 function loadDir(x){
     var elt=$E('#dired_a');
     elt.innerHTML = ''
     var files = x.result[0];
     for (var n=0; n<files.length; n++) {
-	var a=files[n][0];
-	var b=files[n][1];
-	for (var m=0; m<b.length; m++) {
-//        LOG("::"+a+"//"+b[m]);
-        elt.innerHTML += mkThing(a,b[m])
-	}
+	    var a=files[n][0];
+	    var b=files[n][1];
+	    for (var m=0; m<b.length; m++) {
+            //        LOG("::"+a+"//"+b[m]);
+            elt.innerHTML += mkThing(a,b[m])
+	    }
     }
     var path=x.result[2]+'/'+x.result[3];
     LOG("PATH:"+path);
@@ -84,23 +56,39 @@ document.onkeydown=function(e){
     var cmd;
     switch(e.keyCode){
     case 81: // 'Q'
-	if (e.ctrlKey) {
-	    e.preventDefault();
-	    spawn();
-	}
-	break;
+    	if (e.ctrlKey) {
+	        e.preventDefault();
+	        spawn();
+    	}
+    	break;
+    case 82: // 'R'
+    	if (e.ctrlKey) {
+	        e.preventDefault();
+	        restart();
+    	}
+    	break;
+	case 74: // 'J'
+        if (e.ctrlKey) {
+	        jobs();
+	    }
+	    break;
+    case 75: // 'K'
+        if (e.ctrlKey) {
+            destroy();
+        }
+	    break;
     case 90: // 'Z'
-	if (e.ctrlKey) {
-	    e.preventDefault();
-	    cmd = prompt("enter command:","");
-	    RPC.rpcSend("system",[cmd],function(x){
-		    LOG("SYSTEMED!"+str(x.result));
-		    $E('#cmded_a.command').innerHTML = x.result[0];
-		    $E('#cmded_a_stdout' ).innerHTML = x.result[1];
-		    $E('#cmded_a_stderr' ).innerHTML = x.result[2];
-		});
-	}
-	break;
+	    if (e.ctrlKey) {
+	        e.preventDefault();
+    	    cmd = prompt("enter command:","");
+	        RPC.rpcSend("system",[cmd],function(x){
+		        LOG("SYSTEMED!"+str(x.result));
+		        $E('#cmded_a.command').innerHTML = x.result[0];
+    		    $E('#cmded_a_stdout' ).innerHTML = x.result[1];
+	    	    $E('#cmded_a_stderr' ).innerHTML = x.result[2];
+		    });
+	    }
+    	break;
     }
 }
 RPC.reconnect(function(){ load('.') });
@@ -109,10 +97,12 @@ if (0) {
   editor2 = ace.edit("bufed_b");
 } else {
   editor1 = ace.edit("bufed_a");
+  //var emacs = require("ace/keyboard/emacs").handler;
+  //ace.setKeyboardHandler(emacs);
   editor1.commands.addCommand({
       name: 'myCommand', readOnly: true,
       bindKey: {win: 'Ctrl-S',  mac: 'Ctrl-S'},
       exec: function(editor){save(editor1,'#bufed_a.path')}});
   editor2 = new G.BufEd("bufed_b");
-  myCodeMirror = CodeMirror($E('bufed_c'));
+  //myCodeMirror = CodeMirror($E('bufed_c'));
 }
