@@ -77,24 +77,41 @@ function jobs() {
         $E('#cmded_a.command').innerHTML = 'jobs';
         $E('#cmded_a_stdout' ).innerHTML = 'Jobs:'
         for (var n=0; n<x.result.length; n++) {
-            $E('#cmded_a_stdout' ).innerHTML += '<br>'+str(x.result[n]);
+	    if (x.result[n].poll == -9) continue;
+	    var suffix1 = '<button onclick=destroyJob('+n+')>Destroy' + n + '</button>';
+	    var suffix2 = '<button onclick=restartJob('+n+')>Restart' + n + '</button>';
+            $E('#cmded_a_stdout' ).innerHTML += '<br>'+str(x.result[n])+suffix1+suffix2;
         }
         $E('#cmded_a_stderr' ).innerHTML = '';
 	});
 }
+var lastCmd = 'sh run_chat.sh';
 function spawn() {
-    cmd = prompt("enter command:","");
+    var cmd = prompt("enter command:",lastCmd);
     RPC.rpcSend("spawn",[cmd],function(x){
+            lastCmd = cmd;
             LOG("SPAWNED!"+str(x.result));
             $E('#cmded_a.command').innerHTML = x.result[0];
             $E('#cmded_a_stdout' ).innerHTML = '';
             $E('#cmded_a_stderr' ).innerHTML = '';
 	});
 }
-function destroy() {
-    cmd = prompt("enter job index to destroy:","");
+function destroyJob(cmd) {
     RPC.rpcSend("destroy",[cmd],function(x){
       LOG("DESTROY:"+str(x.result));
     })
+}
+function destroy() {
+    var cmd = prompt("enter job index to destroy:","");
+    destroyJob(cmd);
+}
+function restartJob(cmd) {
+    RPC.rpcSend("restart",[cmd],function(x){
+      LOG("RESTART:"+str(x.result));
+    })
+}
+function restart() {
+    var cmd = prompt("enter job index to restart:","");
+    restartJob(cmd);
 }
 

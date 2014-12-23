@@ -14,7 +14,6 @@ class SessionBase(object):
         _.ws, _.pfx = ws, prefix
         super(SessionBase,_).__init__(*a,**kw)
         pass
-    def close(_): _.ws.close(); super(SessionBase,_).close()
     def _dispatch_message(_,message=None,obj=None):
         if obj is None: obj = _
         if message is None: message = _.ws.receive()
@@ -44,12 +43,14 @@ class SessionBase(object):
         _.ws.send(json.dumps(msg))
     def _dispatch_loop(_):
         while _._dispatch_message(): pass
-        _.close()
+        if hasattr(_,'close'):
+            _.close()
+            pass
+        pass
 
 class FsSessMixin(object):
     "Mix this in for filesystem management"
     def __init__(_,*a,**kw): super(FsSessMixin,_).__init__(*a,**kw)
-    def close(_): super(FsSessMixin,_).close()
     def json_save(_,name,value,offset=0,partial=False):
         "save a file (or file data)"
         fwrite(open(name,'w'),value).close()
@@ -77,13 +78,11 @@ class FsSessMixin(object):
 class ProcSessMixin(object):
     "Mix this in for process management"
     def __init__(_,*a,**kw): super(ProcSessMixin,_).__init__(*a,**kw)
-    def close(_): super(ProcSessMixin,_).close()
     Procs = []
-    Procs2 = {}
     def json_jobs(_,target='#edit'):
         "get jobs table."
         return dict(result=[dict(cmd=cmd,index=n,pid=p.pid,poll=p.poll())
-                            for n,(cmd,p) in enumerate(_.Procs2.iteritems())])
+                            for n,(p,cmd) in enumerate(_.Procs)])
     def json_system(_,command,target='#edit',cwd=None):
         "remote system command.  json_spawn is better."
         import subprocess as sp
@@ -92,34 +91,38 @@ class ProcSessMixin(object):
                      stderr=sp.PIPE).communicate()
         return dict(result=[command]+list(z))
     def find_cmd(_,index):
-        p = _.Procs[int(index)]
-        for k,v in _.Procs2.iteritems():
-            if p==v:
-                return k,v
-            pass
-        return None,None
+        ret = _.Procs[int(index)]
+        print " . . FIND CMD", repr(ret)
+        return ret
     def json_restart(_,index,target='#edit'):
-        cmd,p = _.find_cmd(index)
+        p,cmd = _.find_cmd(index)
+        print "RESTART 1", cmd, p
         _.json_destroy(index)
+        print "RESTART 2"
+        gevent.sleep(2)
+        print "RESTART 3", cmd, target
         _.json_spawn(cmd,target)
+        print "RESTART 4"
         pass
     def json_destroy(_,index):
         "destroy process (group)"
-        k,p = _.find_cmd(index)
+        p,cmd = _.find_cmd(index)
         os.killpg(p.pid,9)
-        if k:
-            del _.Procs2[k]
+        if cmd:
+            #del _.Procs2[cmd]
             pass
         return dict(result=True)
     def json_spawn(_,command,target='#edit',cwd=None,output=True):
         "remote system command with async output"
         import os
         import subprocess as sp
+        print "qq 100", repr(command)
         p = sp.Popen(command,shell=True,cwd=cwd,
                      preexec_fn=os.setsid, close_fds=True,
                      stdout=sp.PIPE,stderr=sp.PIPE)
-        _.Procs2[command] = p
-        _.Procs.append(p)
+        print "qq 101", command
+        _.Procs.append([p,command])
+        print "qq 102", command
         index = len(_.Procs)-1
         print 100
         if output: _.json_spew(index)
@@ -127,11 +130,14 @@ class ProcSessMixin(object):
         return dict(result=[command, repr(p), p.pid, index])
     def json_spew(_,index):
         "get remote job output"
-        p = _.Procs[int(index)]
+        p,cmd = _.find_cmd(index)
         def loop_stdout():
             while 1:
                 print "FDOUT", p.stdout.fileno
                 x = gevent.os.tp_read(p.stdout.fileno(),1024)
+                print "FDOUTX", repr(x)
+                if not x:
+                    break
                 _.ws.send(json.dumps(dict(method='spawn',params=dict(output=[x,''],index=index))))
                 pass
             pass
@@ -139,6 +145,9 @@ class ProcSessMixin(object):
             while 1:
                 print "FDERR", p.stderr.fileno
                 x = gevent.os.tp_read(p.stderr.fileno(),1024)
+                print "FDERRX", repr(x)
+                if not x:
+                    break
                 _.ws.send(json.dumps(dict(method='spawn',params=dict(output=['',x],index=index))))
                 pass
             pass
@@ -149,7 +158,6 @@ class ProcSessMixin(object):
 class Session(SessionBase,FsSessMixin,ProcSessMixin):
     "Concrete session for managing files and procs"
     def __init__(_,*a,**kw): super(Session,_).__init__(*a,**kw)
-    def close(_): super(Session,_).close()
     pass
 
 ####################################################

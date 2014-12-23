@@ -61,6 +61,12 @@ document.onkeydown=function(e){
 	        spawn();
     	}
     	break;
+    case 82: // 'R'
+    	if (e.ctrlKey) {
+	        e.preventDefault();
+	        restart();
+    	}
+    	break;
 	case 74: // 'J'
         if (e.ctrlKey) {
 	        jobs();
@@ -91,6 +97,10 @@ if (0) {
   editor2 = ace.edit("bufed_b");
 } else {
   editor1 = ace.edit("bufed_a");
+
+  var emacs = require("ace/keyboard/emacs").handler;
+  ace.setKeyboardHandler(emacs);
+
   editor1.commands.addCommand({
       name: 'myCommand', readOnly: true,
       bindKey: {win: 'Ctrl-S',  mac: 'Ctrl-S'},
